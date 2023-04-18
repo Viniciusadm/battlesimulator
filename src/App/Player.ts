@@ -3,6 +3,7 @@ import { d20 } from "@/functions/dices";
 export type PlayerAttributes = {
     name: string;
     life: number;
+    totalLife?: number;
 };
 
 export type PlayerSkills = {
@@ -21,12 +22,17 @@ export class Player {
     private attributes: PlayerAttributes;
 
     constructor(attributes: PlayerAttributes, skills: PlayerSkills) {
-        this.attributes = attributes;
+        this.attributes = { ...attributes, totalLife: attributes.life}
         this.skills = skills; 
     }
 
     getName(): string {
         return this.attributes.name;
+    }
+
+    getLife(): number {
+        if (!this.attributes.totalLife) return 0;
+        return Number(this.attributes.life / this.attributes.totalLife * 100);
     }
 
     isAlive(): boolean {
