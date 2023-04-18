@@ -10,13 +10,16 @@ type Log = {
 
 function LifeBar({ life }: { life: number }) {
     return (
-        <div className="bg-gray-200 w-80 h-4 rounded-full">
-            <div
-                className="bg-green-500 h-4 rounded-full transition-all duration-1000"
-                style={{ width: `${life}%` }}
-            >
+        <>
+            <div className="bg-gray-200 w-80 h-6 rounded-full mb-2">
+                <div
+                    className="bg-green-500 h-6 rounded-full transition-all duration-1000"
+                    style={{ width: `${life}%` }}
+                >
+                </div>
             </div>
-        </div>
+            <p className="text-center">{life.toFixed(2)}%</p>
+        </>
     );
 }
 
@@ -146,11 +149,11 @@ export default function Home() {
                 players.length > 0 && (
                     <div className="flex flex-row items-center justify-center mb-4">
                         <div className="flex flex-col items-center mr-3">
-                            <p className="text-2xl font-bold">{players[0].getName()}</p>
+                            <p className="text-2xl font-bold mb-1">{players[0].getName()}</p>
                             <LifeBar life={players[0].getLife() > 0 ? players[0].getLife() : 0} />
                         </div>
                         <div className="flex flex-col items-center ml-3">
-                            <p className="text-2xl font-bold">{players[1].getName()}</p>
+                            <p className="text-2xl font-bold mb-1">{players[1].getName()}</p>
                             <LifeBar life={players[1].getLife() > 0 ? players[1].getLife() : 0} />
                         </div>
                     </div>
