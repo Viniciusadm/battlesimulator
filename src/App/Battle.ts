@@ -6,6 +6,7 @@ export class Battle {
     private readonly player2: Player;
     private readonly primary: Player;
     private readonly secondary: Player;
+    private readonly logs: string[] = [];
 
     constructor(player1: Player, player2: Player) {
         this.player1 = player1;
@@ -14,16 +15,22 @@ export class Battle {
         this.secondary = this.primary === player1 ? player2 : player1;
     }
 
+    private log(message: string): void {
+        this.logs.push(message);
+    }
+
     private start(): void {
-        console.log(`${this.player1.getName()} vs ${this.player2.getName()}`);
-        console.log(`${this.primary.getName()} has the initiative!`);
+        this.log(`${this.player1.getName()} vs ${this.player2.getName()}`);
+        this.log(`${this.primary.getName()} has the initiative!`);
+        this.log(`${this.player1.getName()} has ${this.player1.getResumedSkills()}`);
+        this.log(`${this.player2.getName()} has ${this.player2.getResumedSkills()}`);
     }
 
     private end(): void {
         if (this.player1.isAlive()) {
-            console.log(`${this.player1.getName()} win!`);
+            this.log(`${this.player1.getName()} win!`);
         } else {
-            console.log(`${this.player2.getName()} win!`);
+            this.log(`${this.player2.getName()} win!`);
         }
     }
 
@@ -40,16 +47,24 @@ export class Battle {
     fight(): void {
         this.start();
         while (true) {
-            this.secondary.decreaseLife(this.primary.attack());
+            const primaryAttack = this.primary.attack();
+            const secondaryLife = this.secondary.decreaseLife(primaryAttack);
+            this.log(`${this.primary.getName()} attack ${this.secondary.getName()} with ${primaryAttack} and ${this.secondary.getName()} has ${secondaryLife} life`);
             if (!this.secondary.isAlive()) {
                 break;
             }
 
-            this.primary.decreaseLife(this.secondary.attack());
+            const secondaryAttack = this.secondary.attack();
+            const primaryDefense = this.primary.decreaseLife(secondaryAttack);
+            this.log(`${this.secondary.getName()} attack ${this.primary.getName()} with ${secondaryAttack} and ${this.primary.getName()} has ${primaryDefense} life`);
             if (!this.primary.isAlive()) {
                 break;
             }
         }
         this.end();
+    }
+
+    getLogs(): string[] {
+        return this.logs;
     }
 }
