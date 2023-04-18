@@ -62,6 +62,11 @@ export class Player {
         return this.attributes.life;
     }
 
+    setLifeInMax(): number {
+        this.attributes.life = this.attributes.totalLife as number;
+        return this.attributes.life;
+    }
+
     public tryToHit(target: Player): boolean {
         const playerDexterity = this.getExpecifiedSkill('strength');
         const targetDexterity = target.getExpecifiedSkill('dexterity');
