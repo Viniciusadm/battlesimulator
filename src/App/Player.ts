@@ -62,6 +62,14 @@ export class Player {
         return this.attributes.life;
     }
 
+    public tryToHit(target: Player): boolean {
+        const playerDexterity = this.getExpecifiedSkill('strength');
+        const targetDexterity = target.getExpecifiedSkill('dexterity');
+        const playerHit = d20.roll(playerDexterity);
+        const targetDodge = d20.roll(targetDexterity);
+        return playerHit > targetDodge;
+    }
+
     attack(): number {
         return d20.roll(this.skills.strength);
     }
