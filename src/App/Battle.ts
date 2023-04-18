@@ -44,22 +44,38 @@ export class Battle {
         }
     }
 
+    private tryToHit(player: Player, target: Player): boolean {
+        const playerDexterity = player.getExpecifiedSkill('strength');
+        const targetDexterity = target.getExpecifiedSkill('dexterity');
+        const playerHit = d20.roll(playerDexterity);
+        const targetDodge = d20.roll(targetDexterity);
+        return playerHit > targetDodge;
+    }
+
     fight(): void {
         this.start();
         while (true) {
-            const primaryAttack = this.primary.attack();
-            const secondaryLife = this.secondary.decreaseLife(primaryAttack);
-            this.log(`${this.primary.getName()} attack ${this.secondary.getName()} with ${primaryAttack} and ${this.secondary.getName()} has ${secondaryLife} life`);
+            if (this.tryToHit(this.primary, this.secondary)) {
+                const primaryAttack = this.primary.attack();
+                const secondaryLife = this.secondary.decreaseLife(primaryAttack);
+                this.log(`${this.primary.getName()} attack ${this.secondary.getName()} with ${primaryAttack} and ${this.secondary.getName()} has ${secondaryLife} life`);
+            } else {
+                this.log(`${this.primary.getName()} missed ${this.secondary.getName()}`);
+            }
+
             if (!this.secondary.isAlive()) {
                 break;
             }
 
-            const secondaryAttack = this.secondary.attack();
-            const primaryDefense = this.primary.decreaseLife(secondaryAttack);
-            this.log(`${this.secondary.getName()} attack ${this.primary.getName()} with ${secondaryAttack} and ${this.primary.getName()} has ${primaryDefense} life`);
-            if (!this.primary.isAlive()) {
-                break;
+            if (this.tryToHit(this.secondary, this.primary)) {
+                const secondaryAttack = this.secondary.attack();
+                const primaryDefense = this.primary.decreaseLife(secondaryAttack);
+                this.log(`${this.secondary.getName()} attack ${this.primary.getName()} with ${secondaryAttack} and ${this.primary.getName()} has ${primaryDefense} life`);
+                if (!this.primary.isAlive()) {
+                    break;
+                }
             }
+
         }
         this.end();
     }
