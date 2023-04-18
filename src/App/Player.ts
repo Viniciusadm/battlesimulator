@@ -20,11 +20,13 @@ type Skill = keyof PlayerSkills;
 export class Player {
     private readonly skills: PlayerSkills;
     private attributes: PlayerAttributes;
+    private armor: number = 0;
 
     constructor(attributes: Omit<PlayerAttributes, 'life'>, skills: PlayerSkills) {
         this.skills = skills;
         this.attributes = { ...attributes, life: this.getInitialLife() };
         this.attributes.totalLife = this.attributes.life;
+        this.armor = this.getArmor();
     }
 
     getName(): string {
@@ -70,17 +72,19 @@ export class Player {
 
     public tryToHit(target: Player): boolean {
         const playerDexterity = this.getExpecifiedSkill('strength');
-        const targetDexterity = target.getExpecifiedSkill('dexterity');
-        const playerHit = d20.roll(playerDexterity);
-        const targetDodge = d20.roll(targetDexterity);
-        return playerHit > targetDodge;
+        const { value: playerHit } = d20.roll(playerDexterity);
+        return playerHit > target.armor;
     }
 
     attack(): number {
-        return d20.roll(this.skills.strength);
+        return d20.roll(this.skills.strength).value;
     }
 
     private getInitialLife(): number {
         return 10 + this.getExpecifiedSkill('constitution');
+    }
+
+    private getArmor(): number {
+        return 10 + this.getExpecifiedSkill('dexterity');
     }
 }

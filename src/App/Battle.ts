@@ -13,9 +13,9 @@ export class Battle {
     }
 
     public getInitiative(): Player[] {
-        const order = [];
-        order.push(d20.roll(this.player1.getExpecifiedSkill('dexterity')));
-        order.push(d20.roll(this.player2.getExpecifiedSkill('dexterity')));
+        const order: number[] = [];
+        order.push(d20.roll(this.player1.getExpecifiedSkill('dexterity')).value);
+        order.push(d20.roll(this.player2.getExpecifiedSkill('dexterity')).value);
         if (order[0] > order[1]) {
             return [this.player1, this.player2];
         } else {
