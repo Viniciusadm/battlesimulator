@@ -15,12 +15,10 @@ export type PlayerSkills = {
     charisma: number;
 };
 
-type Skill = keyof PlayerSkills;
-
 export class Player {
     private readonly skills: PlayerSkills;
     private attributes: PlayerAttributes;
-    private armor: number = 0;
+    private readonly armor: number = 0;
 
     constructor(attributes: Omit<PlayerAttributes, 'life'>, skills: PlayerSkills) {
         this.skills = skills;
@@ -48,9 +46,9 @@ export class Player {
 
     getResumedSkills(): string {
         let skills = '';
-        for (const skill in this.skills as PlayerSkills) {
-            skills += `${skill}: ${this.skills[skill as Skill]}, `;
-        }
+        skills += `strength: ${this.skills.strength}, `;
+        skills += `dexterity: ${this.skills.dexterity}, `;
+        skills += `constitution: ${this.skills.constitution}, `;
         skills += `life: ${this.attributes.life}, `;
         skills += `armor: ${this.armor}`;
         return skills;

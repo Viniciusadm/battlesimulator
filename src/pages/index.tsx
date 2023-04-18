@@ -10,7 +10,7 @@ type Log = {
 function LifeBar({ life }: { life: number }) {
     return (
         <>
-            <div className="bg-gray-200 w-80 h-6 rounded-full mb-2">
+            <div className="bg-gray-200 h-6 rounded-full mb-2 w-full">
                 <div
                     className="bg-green-500 h-6 rounded-full transition-all duration-1000"
                     style={{ width: `${life}%` }}
@@ -134,8 +134,8 @@ export default function Home() {
     }
 
     return (
-        <main className="flex flex-col items-center py-2 mx-auto">
-            <h1 className="text-4xl font-bold">Battle Simulator</h1>
+        <main className="flex flex-col items-center py-2 mx-auto w-full max-w-4xl px-4">
+            <h1 className="text-4xl text-center font-bold">Battle Simulator</h1>
 
             <button onClick={startBattle} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-4">
                 Start Battle
@@ -143,12 +143,12 @@ export default function Home() {
 
             {
                 players.length > 0 && (
-                    <div className="flex flex-row items-center justify-center mb-4">
-                        <div className="flex flex-col items-center mr-3">
+                    <div className="flex flex-row items-center justify-center mb-4 w-full">
+                        <div className="flex flex-col items-center mr-3 w-2/5">
                             <p className="text-2xl font-bold mb-1">{players[0].getName()}</p>
                             <LifeBar life={players[0].getLife() > 0 ? players[0].getLife() : 0} />
                         </div>
-                        <div className="flex flex-col items-center ml-3">
+                        <div className="flex flex-col items-center ml-3 w-2/5">
                             <p className="text-2xl font-bold mb-1">{players[1].getName()}</p>
                             <LifeBar life={players[1].getLife() > 0 ? players[1].getLife() : 0} />
                         </div>
@@ -160,7 +160,7 @@ export default function Home() {
                 {logsInScreen.map((log, index) => (
                     <p
                         key={index}
-                        className="mb-2"
+                        className="mb-2 text-center"
                     >
                         {log.message}
                     </p>
