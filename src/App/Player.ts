@@ -51,7 +51,8 @@ export class Player {
         for (const skill in this.skills as PlayerSkills) {
             skills += `${skill}: ${this.skills[skill as Skill]}, `;
         }
-        skills += `life: ${this.attributes.life}`;
+        skills += `life: ${this.attributes.life}, `;
+        skills += `armor: ${this.armor}`;
         return skills;
     }
 
