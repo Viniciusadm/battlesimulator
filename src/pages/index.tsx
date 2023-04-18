@@ -8,6 +8,18 @@ type Log = {
     type: 'info' | 'success' | 'warning' | 'error';
 }
 
+function LifeBar({ life }: { life: number }) {
+    return (
+        <div className="bg-gray-200 w-80 h-4 rounded-full">
+            <div
+                className="bg-green-500 h-4 rounded-full transition-all duration-1000"
+                style={{ width: `${life}%` }}
+            >
+            </div>
+        </div>
+    );
+}
+
 export default function Home() {
     const [logsInScreen, setLogsInScreen] = useState<Log[]>([]);
     const [players, setPlayers] = useState<Player[]>([]);
@@ -135,23 +147,11 @@ export default function Home() {
                     <div className="flex flex-row items-center justify-center mb-4">
                         <div className="flex flex-col items-center mr-3">
                             <p className="text-2xl font-bold">{players[0].getName()}</p>
-                            <div className="bg-gray-200 w-80 h-4 rounded-full">
-                                <div
-                                    className="bg-green-500 h-4 rounded-full"
-                                    style={{ width: `${players[0].getLife() > 0 ? players[0].getLife() : 0}%` }}
-                                >
-                                </div>
-                            </div>
+                            <LifeBar life={players[0].getLife() > 0 ? players[0].getLife() : 0} />
                         </div>
                         <div className="flex flex-col items-center ml-3">
                             <p className="text-2xl font-bold">{players[1].getName()}</p>
-                            <div className="bg-gray-200 w-80 h-4 rounded-full">
-                                <div
-                                    className="bg-green-500 h-4 rounded-full"
-                                    style={{ width: `${players[1].getLife() > 0 ? players[1].getLife() : 0}%` }}
-                                >
-                                </div>
-                            </div>
+                            <LifeBar life={players[1].getLife() > 0 ? players[1].getLife() : 0} />
                         </div>
                     </div>
                 )
