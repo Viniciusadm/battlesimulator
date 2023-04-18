@@ -7,7 +7,7 @@ export default class Dice {
         this.sides = sides;
     }
 
-    roll(increments: Increments = [], min = undefined): number {
+    roll(increments: Increments = [], min: number|undefined = undefined): number {
         const dice = Math.floor(Math.random() * this.sides) + 1;
         const increment = Array.isArray(increments) ? increments.reduce((a, b) => a + b, 0) : increments;
         const result = dice + increment;
