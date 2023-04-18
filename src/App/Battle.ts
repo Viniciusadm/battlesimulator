@@ -1,12 +1,15 @@
 import { Player } from "@/App/Player";
 import { d20 } from "@/functions/dices";
 
+type logType = 'info' | 'error' | 'warning' | 'success';
+type Log = { message: string, type: logType };
+
 export class Battle {
     private readonly player1: Player;
     private readonly player2: Player;
     private readonly primary: Player;
     private readonly secondary: Player;
-    private readonly logs: string[] = [];
+    private readonly logs: Log[] = [];
 
     constructor(player1: Player, player2: Player) {
         this.player1 = player1;
@@ -15,8 +18,8 @@ export class Battle {
         this.secondary = this.primary === player1 ? player2 : player1;
     }
 
-    private log(message: string): void {
-        this.logs.push(message);
+    private log(message: string, type: logType = 'info'): void {
+        this.logs.push({ message, type });
     }
 
     private start(): void {
@@ -80,7 +83,7 @@ export class Battle {
         this.end();
     }
 
-    getLogs(): string[] {
+    getLogs(): Log[] {
         return this.logs;
     }
 }
