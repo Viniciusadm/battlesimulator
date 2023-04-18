@@ -40,7 +40,7 @@ export class Player {
     }
 
     getExpecifiedSkill(skill: keyof PlayerSkills): number {
-        return Math.floor(this.skills[skill] / 2);
+        return Math.floor((this.skills[skill] - 10) / 2);
     }
 
     getResumedSkills(): string {
