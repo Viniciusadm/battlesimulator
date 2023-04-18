@@ -26,7 +26,7 @@ export class Player {
         this.skills = skills;
         this.attributes = { ...attributes, life: this.getInitialLife() };
         this.attributes.totalLife = this.attributes.life;
-        this.armor = this.getArmor();
+        this.armor = this.getCalculatedArmor();
     }
 
     getName(): string {
@@ -84,7 +84,7 @@ export class Player {
         return 10 + this.getExpecifiedSkill('constitution');
     }
 
-    private getArmor(): number {
+    private getCalculatedArmor(): number {
         return 10 + this.getExpecifiedSkill('dexterity');
     }
 }
