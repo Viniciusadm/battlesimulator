@@ -15,24 +15,24 @@ export default function Home() {
             name: "Kazuma",
             life: d100.roll(10, 50),
         }, {
-            strength: d20.roll(10),
-            dexterity: d20.roll(-5),
-            charisma: d20.roll(-10),
-            constitution: d20.roll(5),
-            intelligence: d20.roll(),
-            wisdom: d20.roll(),
+            strength: d20.roll(10, 4),
+            dexterity: d20.roll(-5, 4),
+            charisma: d20.roll(-10, 4),
+            constitution: d20.roll(5, 4),
+            intelligence: d20.roll(0, 4),
+            wisdom: d20.roll(0, 4),
         });
 
         const Megumin = new Player({
             name: "Megumin",
             life: d100.roll(0, 50),
         }, {
-            strength: d20.roll(),
-            dexterity: d20.roll(10),
-            charisma: d20.roll(10),
-            constitution: d20.roll(),
-            intelligence: d20.roll(),
-            wisdom: d20.roll(),
+            strength: d20.roll(0, 4),
+            dexterity: d20.roll(10, 4),
+            charisma: d20.roll(10, 4),
+            constitution: d20.roll(0, 4),
+            intelligence: d20.roll(0, 4),
+            wisdom: d20.roll(0, 4),
         });
 
         const battle = new Battle(Kazuma, Megumin);
