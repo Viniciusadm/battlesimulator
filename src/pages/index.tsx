@@ -1,7 +1,6 @@
 import { Player } from "@/App/Player";
 import { Battle } from "@/App/Battle";
 import { useEffect, useState } from "react";
-import { d100, d20 } from "@/functions/dices";
 
 type Log = {
     message: string;
@@ -32,26 +31,24 @@ export default function Home() {
     useEffect(() => {
         const Kazuma = new Player({
             name: "Kazuma",
-            life: d100.roll(30, 80),
         }, {
-            strength: d20.roll(10, 4),
-            dexterity: d20.roll(-5, 4),
-            charisma: d20.roll(-10, 4),
-            constitution: d20.roll(5, 4),
-            intelligence: d20.roll(0, 4),
-            wisdom: d20.roll(0, 4),
+            strength: 15,
+            dexterity: 12,
+            charisma: 13,
+            constitution: 14,
+            intelligence: 8,
+            wisdom: 10,
         });
 
         const Megumin = new Player({
             name: "Megumin",
-            life: d100.roll(20, 80),
         }, {
-            strength: d20.roll(0, 4),
-            dexterity: d20.roll(10, 4),
-            charisma: d20.roll(10, 4),
-            constitution: d20.roll(0, 4),
-            intelligence: d20.roll(0, 4),
-            wisdom: d20.roll(0, 4),
+            strength: 13,
+            dexterity: 15,
+            charisma: 12,
+            constitution: 14,
+            intelligence: 8,
+            wisdom: 10,
         });
 
         setPlayers([Kazuma, Megumin]);
@@ -134,7 +131,6 @@ export default function Home() {
                 await sleep(1000);
             }
         }
-
     }
 
     return (

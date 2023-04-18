@@ -21,9 +21,10 @@ export class Player {
     private readonly skills: PlayerSkills;
     private attributes: PlayerAttributes;
 
-    constructor(attributes: PlayerAttributes, skills: PlayerSkills) {
-        this.attributes = { ...attributes, totalLife: attributes.life}
-        this.skills = skills; 
+    constructor(attributes: Omit<PlayerAttributes, 'life'>, skills: PlayerSkills) {
+        this.skills = skills;
+        this.attributes = { ...attributes, life: this.getInitialLife() };
+        this.attributes.totalLife = this.attributes.life;
     }
 
     getName(): string {
@@ -77,5 +78,9 @@ export class Player {
 
     attack(): number {
         return d20.roll(this.skills.strength);
+    }
+
+    private getInitialLife(): number {
+        return 10 + this.getExpecifiedSkill('constitution');
     }
 }
