@@ -1,4 +1,4 @@
-import { d20 } from "@/functions/dices";
+import { d6, d20 } from "@/functions/dices";
 
 export type PlayerAttributes = {
     name: string;
@@ -77,7 +77,7 @@ export class Player {
     }
 
     attack(): number {
-        return d20.roll(this.skills.strength).value;
+        return d6.roll(this.getExpecifiedSkill('strength')).value;
     }
 
     private getInitialLife(): number {
