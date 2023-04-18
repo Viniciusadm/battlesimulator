@@ -14,6 +14,8 @@ export type PlayerSkills = {
     charisma: number;
 };
 
+type Skill = keyof PlayerSkills;
+
 export class Player {
     private readonly skills: PlayerSkills;
     private attributes: PlayerAttributes;
@@ -33,6 +35,15 @@ export class Player {
 
     getExpecifiedSkill(skill: keyof PlayerSkills): number {
         return this.skills[skill];
+    }
+
+    getResumedSkills(): string {
+        let skills = '';
+        for (const skill in this.skills as PlayerSkills) {
+            skills += `${skill}: ${this.skills[skill as Skill]}, `;
+        }
+        skills += `life: ${this.attributes.life}`;
+        return skills;
     }
 
     decreaseLife(amount: number): number {
