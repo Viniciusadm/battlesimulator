@@ -51,8 +51,62 @@ export default function Home() {
             wisdom: 10,
         });
 
+        Kazuma.addInventory('Potion', 3);
+        Megumin.addInventory('Potion', 3);
+
         setPlayers([Kazuma, Megumin]);
     }, []);
+
+    const initialLogs = async (first: Player, second: Player) => {
+        setLogsInScreen((prev) => [...prev, {
+            message: `${first.getName()} vs ${second.getName()}`,
+            type: 'info',
+        }]);
+
+        await sleep(1000);
+
+        setLogsInScreen((prev) => [...prev, {
+            message: `${first.getName()} has ${first.getResumedSkills()}`,
+            type: 'info',
+        }]);
+
+        setLogsInScreen((prev) => [...prev, {
+            message: `${second.getName()} has ${second.getResumedSkills()}`,
+            type: 'info',
+        }]);
+
+        await sleep(1000);
+    }
+
+    const turn = async (attacker: Player, attacked: Player): Promise<void> => {
+        if (attacker.tryToHit(attacked)) {
+            const damage = attacker.attack();
+            const life = attacked.decreaseLife(damage);
+            setLogsInScreen((prev) => [...prev, {
+                message: `${attacker.getName()} hits ${attacked.getName()} with ${damage} damage, ${attacked.getName()} has ${life} life`,
+                type: 'success',
+            }]);
+        } else {
+            setLogsInScreen((prev) => [...prev, {
+                message: `${attacker.getName()} misses ${attacked.getName()}`,
+                type: 'warning',
+            }]);
+        }
+
+        await sleep(1000);
+    }
+
+    const verifyDead = (player: Player): boolean => {
+        if (!player.isAlive()) {
+            setLogsInScreen((prev) => [...prev, {
+                message: `${player.getName()} is dead`,
+                type: 'error',
+            }]);
+            return true;
+        }
+
+        return false;
+    }
 
     const startBattle = async () => {
         setLogsInScreen([]);
@@ -62,69 +116,18 @@ export default function Home() {
         if (order.length === 2) {
             const [first, second] = order;
 
-            setLogsInScreen((prev) => [...prev, {
-                message: `${first.getName()} vs ${second.getName()}`,
-                type: 'info',
-            }]);
-
-            await sleep(1000);
-
-            setLogsInScreen((prev) => [...prev, {
-                message: `${first.getName()} has ${first.getResumedSkills()}`,
-                type: 'info',
-            }]);
-
-            setLogsInScreen((prev) => [...prev, {
-                message: `${second.getName()} has ${second.getResumedSkills()}`,
-                type: 'info',
-            }]);
-
-            await sleep(1000);
+            await initialLogs(first, second);
 
             while (true) {
-                if (first.tryToHit(second)) {
-                    const damage = first.attack();
-                    const life = second.decreaseLife(damage);
-                    setLogsInScreen((prev) => [...prev, {
-                        message: `${first.getName()} hits ${second.getName()} with ${damage} damage, ${second.getName()} has ${life} life`,
-                        type: 'success',
-                    }]);
-                } else {
-                    setLogsInScreen((prev) => [...prev, {
-                        message: `${first.getName()} misses ${second.getName()}`,
-                        type: 'warning',
-                    }]);
-                }
+                await turn(first, second);
 
-                if (!second.isAlive()) {
-                    setLogsInScreen((prev) => [...prev, {
-                        message: `${second.getName()} is dead`,
-                        type: 'error',
-                    }]);
+                if (verifyDead(second)) {
                     break;
                 }
 
-                await sleep(1000);
+                await turn(second, first);
 
-                if (second.tryToHit(first)) {
-                    const damage = second.attack();
-                    const life = first.decreaseLife(damage);
-                    setLogsInScreen((prev) => [...prev, {
-                        message: `${second.getName()} hits ${first.getName()} with ${damage} damage, ${first.getName()} has ${life} life`,
-                        type: 'success',
-                    }]);
-                } else {
-                    setLogsInScreen((prev) => [...prev, {
-                        message: `${second.getName()} misses ${first.getName()}`,
-                        type: 'warning',
-                    }]);
-                }
-
-                if (!first.isAlive()) {
-                    setLogsInScreen((prev) => [...prev, {
-                        message: `${first.getName()} is dead`,
-                        type: 'error',
-                    }]);
+                if (verifyDead(first)) {
                     break;
                 }
 
