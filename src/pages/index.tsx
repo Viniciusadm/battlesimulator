@@ -1,5 +1,4 @@
-import { Player } from "@/App/Player";
-import { Battle } from "@/App/Battle";
+import { Player, Battle } from "../../node_modules/battlerpg/dist/index.js";
 import { useEffect, useState } from "react";
 
 type Log = {
