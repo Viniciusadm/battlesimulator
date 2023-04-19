@@ -105,14 +105,14 @@ export default function Home() {
                 message: `${attacker.getName()} hits ${attacked.getName()} with ${damage} damage, ${attacked.getName()} has ${life} life`,
                 type: 'success',
             }]);
+
+            await sleep(1000);
         } else {
             setLogsInScreen((prev) => [...prev, {
                 message: `${attacker.getName()} misses ${attacked.getName()}`,
                 type: 'warning',
             }]);
         }
-
-        await sleep(1000);
     }
 
     const verifyDead = (player: Player): boolean => {
@@ -149,8 +149,6 @@ export default function Home() {
                 if (verifyDead(first)) {
                     break;
                 }
-
-                await sleep(1000);
             }
         }
     }
