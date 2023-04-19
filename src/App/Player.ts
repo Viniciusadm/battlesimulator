@@ -1,4 +1,5 @@
 import { d6, d20 } from "@/functions/dices";
+import Inventory from "@/App/Inventory";
 
 export type PlayerAttributes = {
     name: string;
@@ -15,12 +16,13 @@ export type PlayerSkills = {
     charisma: number;
 };
 
-export class Player {
+export class Player extends Inventory {
     private readonly skills: PlayerSkills;
     private attributes: PlayerAttributes;
     private readonly armor: number = 0;
 
     constructor(attributes: Omit<PlayerAttributes, 'life'>, skills: PlayerSkills) {
+        super();
         this.skills = skills;
         this.attributes = { ...attributes, life: this.getInitialLife() };
         this.attributes.totalLife = this.attributes.life;
@@ -75,7 +77,7 @@ export class Player {
         return playerHit > target.armor;
     }
 
-    attack(): number {
+    public attack(): number {
         return d6.roll(this.getExpecifiedSkill('strength')).value;
     }
 
