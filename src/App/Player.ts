@@ -4,7 +4,7 @@ import Inventory from "@/App/Inventory";
 export type PlayerAttributes = {
     name: string;
     life: number;
-    totalLife?: number;
+    totalLife: number;
 };
 
 export type PlayerSkills = {
@@ -21,11 +21,10 @@ export class Player extends Inventory {
     private attributes: PlayerAttributes;
     private readonly armor: number = 0;
 
-    constructor(attributes: Omit<PlayerAttributes, 'life'>, skills: PlayerSkills) {
+    constructor(attributes: { name: string }, skills: PlayerSkills) {
         super();
         this.skills = skills;
-        this.attributes = { ...attributes, life: this.getInitialLife() };
-        this.attributes.totalLife = this.attributes.life;
+        this.attributes = { ...attributes, life: this.getInitialLife(), totalLife: this.getInitialLife() };
         this.armor = this.getCalculatedArmor();
     }
 
