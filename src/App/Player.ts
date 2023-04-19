@@ -84,6 +84,13 @@ export class Player extends Inventory {
         return d6.roll(this.getExpecifiedSkill('strength')).value;
     }
 
+    public heal(): number {
+        if (this.removeInventory('Potion', 1)) {
+            return d6.roll(this.getExpecifiedSkill('wisdom')).value;
+        }
+        return 0;
+    }
+
     private getInitialLife(): number {
         return 10 + this.getExpecifiedSkill('constitution');
     }
