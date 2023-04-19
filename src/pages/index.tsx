@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Battle, Player } from "../../battlerpg";
+import { Battle, Player } from "../../node_modules/battlerpg/dist/index";
 
 type Log = {
     message: string;
