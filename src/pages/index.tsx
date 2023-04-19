@@ -94,9 +94,8 @@ export default function Home() {
                 message: `${attacker.getName()} heals ${heal} life and has ${potions - 1} potions left`,
                 type: 'success',
             }]);
+            await sleep(1000);
         }
-
-        await sleep(1000);
 
         if (attacker.tryToHit(attacked)) {
             const damage = attacker.attack();
@@ -112,6 +111,8 @@ export default function Home() {
                 message: `${attacker.getName()} misses ${attacked.getName()}`,
                 type: 'warning',
             }]);
+
+            await sleep(900);
         }
     }
 
