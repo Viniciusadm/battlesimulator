@@ -76,6 +76,13 @@ export default function Home() {
         }]);
 
         await sleep(1000);
+
+        setLogsInScreen((prev) => [...prev, {
+            message: `${first.getName()} is going to attack first`,
+            type: 'info',
+        }]);
+
+        await sleep(1000);
     }
 
     const turn = async (attacker: Player, attacked: Player): Promise<void> => {
