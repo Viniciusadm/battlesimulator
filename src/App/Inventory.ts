@@ -15,11 +15,13 @@ export default class Inventory {
         }
     }
 
-    public removeInventory(name: string, quantity: number): void {
+    public removeInventory(name: string, quantity: number): boolean {
         const item = this.inventory.find(item => item.name === name);
         if (item) {
             item.quantity -= quantity;
+            return true;
         }
+        return false;
     }
 
     public getInventory(): InventoryItems[] {
