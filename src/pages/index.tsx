@@ -86,6 +86,18 @@ export default function Home() {
     }
 
     const turn = async (attacker: Player, attacked: Player): Promise<void> => {
+        const potions = attacker.getQuantity('Potion');
+        if (potions > 0 && attacker.isDangerous()) {
+            const heal = attacker.heal();
+            attacker.increaseLife(heal);
+            setLogsInScreen((prev) => [...prev, {
+                message: `${attacker.getName()} heals ${heal} life and has ${potions - 1} potions left`,
+                type: 'success',
+            }]);
+        }
+
+        await sleep(1000);
+
         if (attacker.tryToHit(attacked)) {
             const damage = attacker.attack();
             const life = attacked.decreaseLife(damage);
