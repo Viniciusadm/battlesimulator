@@ -29,24 +29,24 @@ export class Player extends Inventory {
         this.armor = this.getCalculatedArmor();
     }
 
-    getName(): string {
+    public getName(): string {
         return this.attributes.name;
     }
 
-    getLife(): number {
+    public getLife(): number {
         if (!this.attributes.totalLife) return 0;
         return Number(this.attributes.life / this.attributes.totalLife * 100);
     }
 
-    isAlive(): boolean {
+    public isAlive(): boolean {
         return this.attributes.life > 0;
     }
 
-    getExpecifiedSkill(skill: keyof PlayerSkills): number {
+    public getExpecifiedSkill(skill: keyof PlayerSkills): number {
         return Math.floor((this.skills[skill] - 10) / 2);
     }
 
-    getResumedSkills(): string {
+    public getResumedSkills(): string {
         let skills = '';
         skills += `strength: ${this.skills.strength}, `;
         skills += `dexterity: ${this.skills.dexterity}, `;
@@ -56,17 +56,17 @@ export class Player extends Inventory {
         return skills;
     }
 
-    decreaseLife(amount: number): number {
+    public decreaseLife(amount: number): number {
         this.attributes.life -= amount;
         return this.attributes.life;
     }
 
-    increaseLife(amount: number): number {
+    public increaseLife(amount: number): number {
         this.attributes.life += amount;
         return this.attributes.life;
     }
 
-    setLifeInMax(): number {
+    public setLifeInMax(): number {
         this.attributes.life = this.attributes.totalLife as number;
         return this.attributes.life;
     }
