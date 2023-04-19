@@ -25,4 +25,12 @@ export default class Inventory {
     public getInventory(): InventoryItems[] {
         return this.inventory;
     }
+
+    public getQuantity(name: string): number {
+        const item = this.inventory.find(item => item.name === name);
+        if (item) {
+            return item.quantity;
+        }
+        return 0;
+    }
 }
