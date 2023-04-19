@@ -41,6 +41,10 @@ export class Player extends Inventory {
         return this.attributes.life > 0;
     }
 
+    public isDangerous(): boolean {
+        return this.attributes.life < (this.attributes.totalLife / 2);
+    }
+
     public getExpecifiedSkill(skill: keyof PlayerSkills): number {
         return Math.floor((this.skills[skill] - 10) / 2);
     }
