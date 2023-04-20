@@ -130,6 +130,8 @@ export default function Home() {
         } else {
             addLog(`${attacker.getName()} tries to use Explosion but fails`);
         }
+
+        await sleep(1000);
     }
 
     const turn = async (attacker: Player, attacked: Player): Promise<void> => {
