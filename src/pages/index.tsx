@@ -25,6 +25,13 @@ export default function Home() {
     const [logsInScreen, setLogsInScreen] = useState<Log[]>([]);
     const [players, setPlayers] = useState<Player[]>([]);
 
+    const addLog = (message: string) => {
+        setLogsInScreen((prev) => [...prev, {
+            message,
+            type: 'info',
+        }
+        ]);
+    }
     const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
     useEffect(() => {
