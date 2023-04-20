@@ -57,29 +57,16 @@ export default function Home() {
     }, []);
 
     const initialLogs = async (first: Player, second: Player) => {
-        setLogsInScreen((prev) => [...prev, {
-            message: `${first.getName()} vs ${second.getName()}`,
-            type: 'info',
-        }]);
+        addLog(`${first.getName()} vs ${second.getName()}`);
 
         await sleep(1000);
 
-        setLogsInScreen((prev) => [...prev, {
-            message: `${first.getName()} has ${first.getResumedSkills()}`,
-            type: 'info',
-        }]);
-
-        setLogsInScreen((prev) => [...prev, {
-            message: `${second.getName()} has ${second.getResumedSkills()}`,
-            type: 'info',
-        }]);
+        addLog(`${first.getName()} has ${first.getResumedSkills()}`);
+        addLog(`${second.getName()} has ${second.getResumedSkills()}`);
 
         await sleep(1000);
 
-        setLogsInScreen((prev) => [...prev, {
-            message: `${first.getName()} is going to attack first`,
-            type: 'info',
-        }]);
+        addLog(`${first.getName()} is going to attack first`);
 
         await sleep(1000);
     }
@@ -89,38 +76,24 @@ export default function Home() {
         if (potions > 0 && attacker.isDangerous()) {
             const heal = attacker.heal();
             attacker.increaseLife(heal);
-            setLogsInScreen((prev) => [...prev, {
-                message: `${attacker.getName()} heals ${heal} life and has ${potions - 1} potions left`,
-                type: 'success',
-            }]);
+            addLog(`${attacker.getName()} heals ${heal} life and has ${potions - 1} potions left`);
             await sleep(1000);
         }
 
         if (attacker.tryToHit(attacked)) {
             const damage = attacker.attack();
             const life = attacked.decreaseLife(damage);
-            setLogsInScreen((prev) => [...prev, {
-                message: `${attacker.getName()} hits ${attacked.getName()} with ${damage} damage, ${attacked.getName()} has ${life} life`,
-                type: 'success',
-            }]);
-
+            addLog(`${attacker.getName()} hits ${attacked.getName()} with ${damage} damage, ${attacked.getName()} has ${life} life`);
             await sleep(1000);
         } else {
-            setLogsInScreen((prev) => [...prev, {
-                message: `${attacker.getName()} misses ${attacked.getName()}`,
-                type: 'warning',
-            }]);
-
+            addLog(`${attacker.getName()} misses ${attacked.getName()}`);
             await sleep(900);
         }
     }
 
     const verifyDead = (player: Player): boolean => {
         if (!player.isAlive()) {
-            setLogsInScreen((prev) => [...prev, {
-                message: `${player.getName()} is dead`,
-                type: 'error',
-            }]);
+            addLog(`${player.getName()} is dead`);
             return true;
         }
 
