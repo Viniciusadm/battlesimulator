@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import Battle from "../../battlerpg/src/Classes/Battle";
-import Player from "../../battlerpg/src/Classes/Player";
-import { addSpell, getSpell, Spell } from "../../battlerpg/src/Database/spells";
-import { d20 } from "../../battlerpg/src/Helpers/dices";
+import Battle from "../../battlerpg/Classes/Battle";
+import Player from "../../battlerpg/Classes/Player";
+import { addSpell, getSpell, Spell } from "../../battlerpg/Database/spells";
+import { d20 } from "../../battlerpg/Helpers/dices";
 
 type Log = {
     message: string;
