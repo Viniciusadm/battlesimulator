@@ -100,7 +100,11 @@ export default class Player extends Character {
 
     public canSpell(spellName: string): boolean {
         const spell = this.getSpell(spellName);
-        return spell && this.energy >= spell.energyCost;
+        if (!spell) {
+            return false;
+        }
+
+        return this.energy >= spell.energyCost;
     }
 
     public getSpell(spellName: string): Spell | undefined {
