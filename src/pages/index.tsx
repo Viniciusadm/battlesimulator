@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { Battle, Player } from "../../node_modules/battlerpg/dist/index";
+import { Battle, Player } from "../../battlerpg/src/index";
+import { addSpell, getSpell, Spell } from "../../battlerpg/src/Database/spells";
+import { d20 } from "../../battlerpg/src/Helpers/dices";
 
 type Log = {
     message: string;
@@ -30,11 +32,23 @@ export default function Home() {
             message,
             type: 'info',
         }
-        ]);
+    ]);
     }
+
+    const addSpells = () => {
+        addSpell({
+            name: "Explosion",
+            energyCost: 18,
+            type: "attack",
+            dices: [12],
+        });
+    }
+
     const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
     useEffect(() => {
+        addSpells();
+
         const Kazuma = new Player({
             name: "Kazuma",
         }, {
@@ -60,6 +74,11 @@ export default function Home() {
         Kazuma.addInventory('Potion', 3);
         Megumin.addInventory('Potion', 3);
 
+        const firebal = getSpell('Explosion');
+        if (firebal) {
+            Megumin.addSpell(firebal);
+        }
+
         setPlayers([Kazuma, Megumin]);
     }, []);
 
@@ -78,7 +97,7 @@ export default function Home() {
         await sleep(1000);
     }
 
-    const turn = async (attacker: Player, attacked: Player): Promise<void> => {
+    const drinkPotion = async (attacker: Player) => {
         const potions = attacker.getQuantity('Potion');
         if (potions > 0 && attacker.isDangerous()) {
             const heal = attacker.heal();
@@ -86,7 +105,9 @@ export default function Home() {
             addLog(`${attacker.getName()} heals ${heal} life and has ${potions - 1} potions left`);
             await sleep(1000);
         }
+    }
 
+    const attack = async (attacker: Player, attacked: Player) => {
         if (attacker.tryToHit(attacked)) {
             const damage = attacker.attack();
             const life = attacked.decreaseLife(damage);
@@ -95,6 +116,28 @@ export default function Home() {
         } else {
             addLog(`${attacker.getName()} misses ${attacked.getName()}`);
             await sleep(900);
+        }
+    }
+
+    const spell = async (attacker: Player, attacked: Player, spell: Spell) => {
+        const resists = d20.roll().value;
+
+        const damage = attacker.useSpell(spell, resists);
+        if (damage) {
+            const life = attacked.decreaseLife(damage as number);
+            addLog(`${attacker.getName()} uses Explosion and hits ${attacked.getName()} with ${damage} damage, ${attacked.getName()} has ${life} life`);
+        } else {
+            addLog(`${attacker.getName()} tries to use Explosion but fails`);
+        }
+    }
+
+    const turn = async (attacker: Player, attacked: Player): Promise<void> => {
+        await drinkPotion(attacker);
+
+        if (attacker.canSpell('Explosion')) {
+            await spell(attacker, attacked, getSpell('Explosion') as Spell);
+        } else {
+            await attack(attacker, attacked);
         }
     }
 
