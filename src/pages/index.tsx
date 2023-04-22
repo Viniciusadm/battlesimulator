@@ -122,9 +122,6 @@ export default function Home() {
             wisdom: 10,
         });
 
-        Kazuma.addInventory('Potion', 3);
-        Megumin.addInventory('Potion', 3);
-
         const firebal = getSpell('Explosion');
         if (firebal) {
             Megumin.addSpell(firebal);
@@ -231,6 +228,10 @@ export default function Home() {
     }
 
     const startBattle = async () => {
+        players.forEach((player) => {
+            player.setInventory('Potion', 3);
+        });
+
         setLogsInScreen([]);
         const battle = new Battle(players[0], players[1]);
         const order = battle.getInitiative();

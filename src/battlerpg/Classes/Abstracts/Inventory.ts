@@ -25,6 +25,15 @@ export default class Inventory {
         }
     }
 
+    public setInventory(name: string, quantity: number): void {
+        const item = this.inventory.find(item => item.name === name);
+        if (item) {
+            item.quantity = quantity;
+        } else {
+            this.inventory.push({ name, quantity });
+        }
+    }
+
     public removeInventory(name: string, quantity: number): boolean {
         const item = this.inventory.find(item => item.name === name);
         if (item) {
