@@ -15,14 +15,12 @@ export type PlayerSkills = {
 export default class Player extends Character {
     private readonly skills: PlayerSkills;
     private readonly spells: Spell[] = [];
-    private readonly armor: number = 0;
     private energy: number = 0;
 
     constructor(attributes: { name: string }, skills: PlayerSkills) {
         super(attributes);
         this.skills = skills;
         this.attributes = {...attributes, life: this.getInitialLife(), totalLife: this.getInitialLife()};
-        this.armor = this.getCalculatedArmor();
         this.energy = this.getMaxEnergy();
     }
 
@@ -36,7 +34,7 @@ export default class Player extends Character {
         skills += `dexterity: ${this.skills.dexterity}, `;
         skills += `constitution: ${this.skills.constitution}, `;
         skills += `life: ${this.attributes.life}, `;
-        skills += `armor: ${this.armor}`;
+        skills += `armor: ${this.getCalculatedArmor()}`;
         return skills;
     }
 
@@ -45,7 +43,7 @@ export default class Player extends Character {
         const roll = d20.roll(playerDexterity);
         return {
             ...roll,
-            success: roll.value >= target.armor,
+            success: roll.value >= target.getCalculatedArmor(),
         }
     }
 
@@ -64,7 +62,11 @@ export default class Player extends Character {
         return 10 + this.getExpecifiedSkill('constitution');
     }
 
-    private getCalculatedArmor(): number {
+    public getCalculatedArmor(): number {
+        if (this.watch.armor) {
+            return this.watch.armor.value + (this.watch.armor.incrementable ? this.getExpecifiedSkill('dexterity') : 0);
+        }
+
         return 10 + this.getExpecifiedSkill('dexterity');
     }
 

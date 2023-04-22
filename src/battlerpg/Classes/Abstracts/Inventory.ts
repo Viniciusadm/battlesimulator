@@ -3,8 +3,18 @@ export type InventoryItems = {
     quantity: number;
 };
 
+type Watch = {
+    armor: {
+        value: number,
+        incrementable: boolean
+    } | undefined;
+}
+
 export default class Inventory {
     private inventory: InventoryItems[] = [];
+    protected watch: Watch = {
+        armor: undefined,
+    }
 
     public addInventory(name: string, quantity: number): void {
         const item = this.inventory.find(item => item.name === name);
@@ -34,5 +44,9 @@ export default class Inventory {
             return item.quantity;
         }
         return 0;
+    }
+
+    public setWatchArmor(value: number, incrementable: boolean): void {
+        this.watch.armor = { value, incrementable };
     }
 }

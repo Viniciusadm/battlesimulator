@@ -98,6 +98,8 @@ export default function Home() {
             Megumin.addSpell(firebal);
         }
 
+        Kazuma.setWatchArmor(12, true);
+
         setPlayers([Kazuma, Megumin]);
     }, []);
 
