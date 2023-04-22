@@ -1,6 +1,6 @@
 import Player from "@/battlerpg/Classes/Player";
 import { getSpell } from "@/battlerpg/Database/spells";
-import { d6, d8 } from "@/battlerpg/Helpers/dices";
+import { d10, d6, d8 } from "@/battlerpg/Helpers/dices";
 
 const Kazuma = new Player({
     name: "Kazuma",
@@ -37,8 +37,23 @@ if (heal) {
 }
 Megumin.setWatchWeapon(d6, 'range');
 
+const Darkness = new Player({
+    name: "Darkness",
+}, {
+    strength: 15,
+    dexterity: 12,
+    charisma: 13,
+    constitution: 14,
+    intelligence: 8,
+    wisdom: 10,
+});
+
+Darkness.setWatchArmor(18, false);
+Darkness.setWatchWeapon(d10, 'melee');
+
 export const players = {
     Kazuma,
     Megumin,
+    Darkness,
 };
 

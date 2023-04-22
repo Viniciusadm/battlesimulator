@@ -119,8 +119,7 @@ export default function Home() {
     const sleep = (ms: number) => new Promise(r => setTimeout(r, quickBattle ? ms / 0 : ms));
 
     useEffect(() => {
-
-        setPlayers([warriors.Kazuma, warriors.Megumin]);
+        setPlayers([warriors.Darkness, warriors.Kazuma]);
     }, []);
 
     const initialLogs = async (first: Player, second: Player) => {
