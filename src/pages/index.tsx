@@ -101,6 +101,8 @@ export default function Home() {
     const [quickBattle, setQuickBattle] = useState<boolean>(false);
     const [victories, setVictories] = useState<{player1: number, player2: number}>({player1: 0, player2: 0});
     const [multiplesBattles, setMultiplesBattles] = useState<boolean>(false);
+    const [battles, setBattles] = useState<number>(0);
+    const [victtoriesWithInitiative, setVicttoriesWithInitiative] = useState<number>(0);
 
     const addLog = (message: string, type: Log['type'] = 'info') => {
         if (multiplesBattles) {
@@ -273,6 +275,7 @@ export default function Home() {
         const battles = multiplesBattles ? 100 : 1;
 
         for (let i = 0; i < battles; i++) {
+            setBattles((prev) => prev + 1);
             const order = battle.getInitiative();
 
             if (order.length === 2) {
@@ -284,6 +287,7 @@ export default function Home() {
                     await turn(first, second);
 
                     if (verifyDead(second)) {
+                        setVicttoriesWithInitiative((prev) => prev + 1);
                         break;
                     }
 
@@ -299,15 +303,17 @@ export default function Home() {
 
     const clearVictories = () => {
         setVictories({player1: 0, player2: 0});
+        setVicttoriesWithInitiative(0);
+        setBattles(0);
     }
 
     return (
         <main className="flex flex-col items-center py-2 mx-auto w-full max-w-4xl px-4">
-            <h1 className="text-3xl lg:text-4xl text-center font-bold">
+            <h1 className="text-3xl lg:text-4xl text-center font-bold mb-3">
                 Battle Simulator
             </h1>
 
-            <div>
+            <div className="mb-3">
                 <button onClick={startBattle} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-4">
                     Start Battle
                 </button>
@@ -316,9 +322,20 @@ export default function Home() {
                 </button>
             </div>
 
-            <div className="flex flex-col justify-center mb-4">
+            <div className="flex flex-col justify-center mb-3">
                 <Toggle state={multiplesBattles} onChange={changeMultiple} label="Multiples Battles" />
                 <Toggle state={quickBattle} onChange={changeQuickBattle} label="Quick Battle" />
+            </div>
+
+            <div className="flex flex-col justify-center mb-3">
+                <p className="text-2xl font-bold">
+                    General Data
+                </p>
+                <p>
+                    Battles: {battles}
+                    <br />
+                    Victories with initiative: {victtoriesWithInitiative}
+                </p>
             </div>
 
             {
