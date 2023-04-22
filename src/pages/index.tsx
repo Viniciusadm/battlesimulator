@@ -33,7 +33,7 @@ function PlayerStatus({ player, victory }: { player: Player, victory: number }) 
             <p className="text-xl lg:text-2xl font-bold mb-1">
                 {player.getName()}
             </p>
-            <p className="text-lg lg:text-xl font-bold mb-1">
+            <p className="text-base lg:text-xl font-bold mb-1">
                 {victory} victories
             </p>
 
@@ -87,7 +87,7 @@ function Logs({logs}: {logs: Log[]}) {
             {logs.reverse().map((log, index) => (
                 <p
                     key={index}
-                    className={`mb-2 p-2 rounded text-sm lg:text-base ${getBackground(log.type)}`}
+                    className={`mb-2 p-2 rounded text-center text-sm lg:text-base w-full lg:w-1/2 ${getBackground(log.type)}`}
                 >
                     {log.message}
                 </p>
@@ -314,7 +314,7 @@ export default function Home() {
                     )
                 }
 
-                <div className="flex flex-col items-center overflow-y-auto w-full lg:h-3/4">
+                <div className="flex flex-col items-center overflow-y-auto w-full lg:h-3/4 px-4 lg:px-0">
                     <Logs logs={logsInScreen} />
                 </div>
             </div>
