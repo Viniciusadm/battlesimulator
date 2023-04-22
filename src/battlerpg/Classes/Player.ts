@@ -77,7 +77,7 @@ export default class Player extends Character {
         this.energy -= spell.energyCost;
     }
 
-    public useSpell(spell: Spell, resists: number): number|boolean {
+    public useSpell(spell: Spell, resists: number = 0): number|boolean {
         if (spell && this.energy >= spell.energyCost) {
             this.decreaseEnergy(spell);
 
