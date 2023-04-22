@@ -30,7 +30,10 @@ function PlayerStatus({ player, victory }: { player: Player, victory: number }) 
     return (
         <div className="flex flex-col items-center mr-3 w-2/5">
             <p className="text-xl lg:text-2xl font-bold mb-1">
-                {player.getName()} - {victory} victories
+                {player.getName()}
+            </p>
+            <p className="text-lg lg:text-xl font-bold mb-1">
+                {victory} victories
             </p>
 
             <Bar
@@ -273,15 +276,24 @@ export default function Home() {
         }
     }
 
+    const clearVictories = () => {
+        setVictories({player1: 0, player2: 0});
+    }
+
     return (
         <main className="flex flex-col items-center py-2 mx-auto w-full max-w-4xl px-4">
             <h1 className="text-3xl lg:text-4xl text-center font-bold">
                 Battle Simulator
             </h1>
 
-            <button onClick={startBattle} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-4">
-                Start Battle
-            </button>
+            <div>
+                <button onClick={startBattle} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-4">
+                    Start Battle
+                </button>
+                <button onClick={clearVictories} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded my-4 ml-1">
+                    Clear
+                </button>
+            </div>
 
             <Toggle state={quickBattle} onChange={setQuickBattle} label="Quick Battle" />
 
