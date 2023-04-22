@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import Battle from "@/battlerpg/Classes/Battle";
 import Player from "@/battlerpg/Classes/Player";
-import { addSpell, getSpell, Spell } from "@/battlerpg/Database/spells";
-import { d12, d20 } from "@/battlerpg/Helpers/dices";
+import { getSpell, Spell } from "@/battlerpg/Database/spells";
+import { d20 } from "@/battlerpg/Helpers/dices";
 import { roll } from "@/battlerpg/Classes/Dice";
 
 type Log = {
@@ -54,20 +54,9 @@ export default function Home() {
     ]);
     }
 
-    const addSpells = () => {
-        addSpell({
-            name: "Explosion",
-            energyCost: 18,
-            type: "attack",
-            dices: [d12],
-        });
-    }
-
     const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
     useEffect(() => {
-        addSpells();
-
         const Kazuma = new Player({
             name: "Kazuma",
         }, {
@@ -96,6 +85,10 @@ export default function Home() {
         const firebal = getSpell('Explosion');
         if (firebal) {
             Megumin.addSpell(firebal);
+        }
+        const heal = getSpell('Heal');
+        if (heal) {
+            Megumin.addSpell(heal);
         }
 
         Kazuma.setWatchArmor(12, true);
@@ -156,13 +149,32 @@ export default function Home() {
         await sleep(1000);
     }
 
+    const healSpell = async (attacker: Player, attacked: Player, spell: Spell) => {
+        const attempt = attacker.useSpell(spell, 0);
+
+        if (attempt) {
+            const heal = (attempt as roll).value;
+            const life = attacked.increaseLife(heal);
+
+            if (attacker.getName() === attacked.getName()) {
+                addLog(`${attacker.getName()} uses Heal and heals ${heal} life, ${attacker.getName()} has ${life} life`);
+            } else {
+                addLog(`${attacker.getName()} uses Heal and heals ${heal} life to ${attacked.getName()}, ${attacked.getName()} has ${life} life`);
+            }
+        }
+    }
+
     const turn = async (attacker: Player, attacked: Player): Promise<void> => {
         await drinkPotion(attacker);
 
-        if (attacker.canSpell('Explosion')) {
-            await spell(attacker, attacked, getSpell('Explosion') as Spell);
+        if (attacker.canSpell('Heal') && attacker.isDangerous()) {
+            await healSpell(attacker, attacker, getSpell('Heal') as Spell);
         } else {
-            await attack(attacker, attacked);
+            if (attacker.canSpell('Explosion')) {
+                await spell(attacker, attacked, getSpell('Explosion') as Spell);
+            } else {
+                await attack(attacker, attacked);
+            }
         }
     }
 
