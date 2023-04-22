@@ -23,7 +23,7 @@ export default class Dice {
             value: min ? Math.max(result, min) : result,
             increment,
             rolls: [{
-                dice: Dice.diceToString(this),
+                dice: this.diceToString(),
                 value: dice,
             }],
         };
@@ -34,7 +34,7 @@ export default class Dice {
         const result = dices.map(dice => {
             const roll = dice.roll();
             rolls.push({
-                dice: Dice.diceToString(dice),
+                dice: dice.diceToString(),
                 value: roll.value,
             });
             return roll;
@@ -48,7 +48,7 @@ export default class Dice {
         }
     }
 
-    private static diceToString(dice: Dice): string {
-        return `d${dice.sides}`;
+    public diceToString(): string {
+        return `d${this.sides}`;
     }
 }
