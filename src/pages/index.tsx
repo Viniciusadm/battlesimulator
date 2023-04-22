@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import Battle from "@/battlerpg/Classes/Battle";
 import Player from "@/battlerpg/Classes/Player";
 import { getSpell, Spell } from "@/battlerpg/Database/spells";
-import { d20, d6, d8 } from "@/battlerpg/Helpers/dices";
+import { d20 } from "@/battlerpg/Helpers/dices";
 import { roll } from "@/battlerpg/Classes/Dice";
+import { players as warriors } from "@/battlerpg/Database/players";
 
 type Log = {
     message: string;
@@ -118,43 +119,8 @@ export default function Home() {
     const sleep = (ms: number) => new Promise(r => setTimeout(r, quickBattle ? ms / 0 : ms));
 
     useEffect(() => {
-        const Kazuma = new Player({
-            name: "Kazuma",
-        }, {
-            strength: 15,
-            dexterity: 12,
-            charisma: 13,
-            constitution: 14,
-            intelligence: 8,
-            wisdom: 10,
-        });
 
-        const Megumin = new Player({
-            name: "Megumin",
-        }, {
-            strength: 13,
-            dexterity: 14,
-            charisma: 10,
-            constitution: 12,
-            intelligence: 15,
-            wisdom: 8,
-        });
-
-        const firebal = getSpell('Explosion');
-        if (firebal) {
-            Megumin.addSpell(firebal);
-        }
-        const heal = getSpell('Heal');
-        if (heal) {
-            Megumin.addSpell(heal);
-        }
-
-        Kazuma.setWatchArmor(12, true);
-        Kazuma.setWatchWeapon(d8, 'melee');
-
-        Megumin.setWatchWeapon(d6, 'range');
-
-        setPlayers([Kazuma, Megumin]);
+        setPlayers([warriors.Kazuma, warriors.Megumin]);
     }, []);
 
     const initialLogs = async (first: Player, second: Player) => {
