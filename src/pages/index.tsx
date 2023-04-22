@@ -42,19 +42,32 @@ function PlayerStatus({ player }: { player: Player }) {
     );
 }
 
+function Toggle({ state, label, onChange }: { state: boolean, label: string, onChange: (value: boolean) => void }) {
+    return (
+        <label className="relative inline-flex items-center mb-5 cursor-pointer">
+            <input type="checkbox" value="" className="sr-only peer" checked={state} onChange={(e) => onChange(e.target.checked)} />
+                <div
+                    className="w-11 h-6 bg-gray-300 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-500"
+                >
+                </div>
+                <span className="ml-3 text-sm font-medium text-gray-400 dark:text-gray-500">{ label }</span>
+        </label>
+    );
+}
+
 export default function Home() {
     const [logsInScreen, setLogsInScreen] = useState<Log[]>([]);
     const [players, setPlayers] = useState<Player[]>([]);
+    const [quickBattle, setQuickBattle] = useState<boolean>(false);
 
     const addLog = (message: string) => {
         setLogsInScreen((prev) => [...prev, {
             message,
             type: 'info',
-        }
-    ]);
+        }]);
     }
 
-    const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+    const sleep = (ms: number) => new Promise(r => setTimeout(r, quickBattle ? ms / 0 : ms));
 
     useEffect(() => {
         const Kazuma = new Player({
@@ -220,6 +233,8 @@ export default function Home() {
             <button onClick={startBattle} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-4">
                 Start Battle
             </button>
+
+            <Toggle state={quickBattle} onChange={setQuickBattle} label="Quick Battle" />
 
             {
                 players.length > 0 && (
