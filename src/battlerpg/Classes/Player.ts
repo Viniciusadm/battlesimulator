@@ -49,7 +49,6 @@ export default class Player extends Character {
 
     public attack(): roll {
         if (!this.watch.weapon) {
-            console.log('D4');
             return d4.roll(this.getExpecifiedSkill('strength'));
         } else {
             const skill = this.watch.weapon.type === 'melee' ? 'strength' : 'dexterity';

@@ -25,12 +25,12 @@ function Bar({ text, value, color = 'bg-green-500' }: { text: string, value: num
     );
 }
 
-function PlayerStatus({ player }: { player: Player }) {
+function PlayerStatus({ player, victory }: { player: Player, victory: number }) {
     const life = player.getLife() > 0 ? player.getLife().toFixed(2) : 0;
     return (
         <div className="flex flex-col items-center mr-3 w-2/5">
             <p className="text-xl lg:text-2xl font-bold mb-1">
-                {player.getName()}
+                {player.getName()} - {victory} victories
             </p>
 
             <Bar
@@ -96,6 +96,7 @@ export default function Home() {
     const [logsInScreen, setLogsInScreen] = useState<Log[]>([]);
     const [players, setPlayers] = useState<Player[]>([]);
     const [quickBattle, setQuickBattle] = useState<boolean>(false);
+    const [victories, setVictories] = useState<{player1: number, player2: number}>({player1: 0, player2: 0});
 
     const addLog = (message: string, type: Log['type'] = 'info') => {
         setLogsInScreen((prev) => [...prev, {
@@ -229,6 +230,13 @@ export default function Home() {
     const verifyDead = (player: Player): boolean => {
         if (!player.isAlive()) {
             addLog(`${player.getName()} is dead`, 'error');
+
+            if (player.getName() === players[0].getName()) {
+                setVictories((prev) => ({...prev, player2: prev.player2 + 1}));
+            } else {
+                setVictories((prev) => ({...prev, player1: prev.player1 + 1}));
+            }
+
             return true;
         }
 
@@ -280,8 +288,8 @@ export default function Home() {
             {
                 players.length > 0 && (
                     <div className="flex flex-row items-center justify-center mb-4 w-full">
-                        <PlayerStatus player={players[0]} />
-                        <PlayerStatus player={players[1]} />
+                        <PlayerStatus player={players[0]} victory={victories.player1} />
+                        <PlayerStatus player={players[1]} victory={victories.player2} />
                     </div>
                 )
             }
