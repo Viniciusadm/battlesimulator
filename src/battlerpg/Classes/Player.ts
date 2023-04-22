@@ -50,8 +50,8 @@ export default class Player extends Character {
         return d6.roll(this.getExpecifiedSkill('strength')).value;
     }
 
-    public heal(): number {
-        if (this.removeInventory('Potion', 1)) {
+    public heal(potion = 'Potion'): number {
+        if (this.removeInventory(potion, 1)) {
             return d6.roll(this.getExpecifiedSkill('wisdom')).value;
         }
         return 0;
