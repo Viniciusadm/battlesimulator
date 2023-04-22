@@ -1,9 +1,9 @@
-type Dices = 4 | 6 | 8 | 10 | 12;
+import Dice from "@/battlerpg/Classes/Dice";
 
 export type Spell = {
     name: string;
     energyCost: number;
-    dices: Dices[];
+    dices: Dice[];
     type: 'attack' | 'heal';
 };
 

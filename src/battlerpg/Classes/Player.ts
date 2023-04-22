@@ -85,12 +85,7 @@ export default class Player extends Character {
                 return false;
             }
 
-            let total = 0;
-
-            for (const dice of spell.dices) {
-                const { value} = new Dice(dice).roll();
-                total += value;
-            }
+            let total = Dice.rollMultiple(spell.dices).value;
 
             return total + this.getExpecifiedSkill('intelligence');
         }

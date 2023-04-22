@@ -13,7 +13,7 @@ export default class Dice {
         this.sides = sides;
     }
 
-    roll(increments: Increments = [], min: number|undefined = undefined): roll {
+    public roll(increments: Increments = [], min: number|undefined = undefined): roll {
         const dice = Math.floor(Math.random() * this.sides) + 1;
         const increment = Array.isArray(increments) ? increments.reduce((a, b) => a + b, 0) : increments;
         const result = dice + increment;
@@ -22,5 +22,16 @@ export default class Dice {
             dice,
             increment,
         };
+    }
+
+    public static rollMultiple(dices: Dice[], increments: Increments = [], min: number|undefined = undefined): roll {
+        const result = dices.map(dice => dice.roll()).reduce((a, b) => a + b.value, 0);
+        const increment = Array.isArray(increments) ? increments.reduce((a, b) => a + b, 0) : increments;
+        const value = result + increment;
+        return {
+            value: min ? Math.max(value, min) : value,
+            dice: result,
+            increment,
+        }
     }
 }
