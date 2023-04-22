@@ -55,15 +55,45 @@ function Toggle({ state, label, onChange }: { state: boolean, label: string, onC
     );
 }
 
+function Logs({logs}: {logs: Log[]}) {
+    const getBackground = (type: Log['type']) => {
+        switch (type) {
+            case 'info':
+                return 'bg-blue-200';
+            case 'success':
+                return 'bg-green-200';
+            case 'warning':
+                return 'bg-yellow-200';
+            case 'error':
+                return 'bg-red-200';
+            default:
+                return 'bg-gray-200';
+        }
+    }
+
+    return (
+        <div className="flex flex-col items-center">
+            {logs.map((log, index) => (
+                <p
+                    key={index}
+                    className={`mb-2 text-center ${getBackground(log.type)} p-2 rounded`}
+                >
+                    {log.message}
+                </p>
+            ))}
+        </div>
+    );
+}
+
 export default function Home() {
     const [logsInScreen, setLogsInScreen] = useState<Log[]>([]);
     const [players, setPlayers] = useState<Player[]>([]);
     const [quickBattle, setQuickBattle] = useState<boolean>(false);
 
-    const addLog = (message: string) => {
+    const addLog = (message: string, type: Log['type'] = 'info') => {
         setLogsInScreen((prev) => [...prev, {
             message,
-            type: 'info',
+            type,
         }]);
     }
 
@@ -129,7 +159,7 @@ export default function Home() {
         if (potions > 0 && attacker.isDangerous()) {
             const heal = attacker.heal();
             attacker.increaseLife(heal);
-            addLog(`${attacker.getName()} heals ${heal} life and has ${potions - 1} potions left`);
+            addLog(`${attacker.getName()} heals ${heal} life and has ${potions - 1} potions left`, 'success');
             await sleep(1000);
         }
     }
@@ -139,10 +169,10 @@ export default function Home() {
         if (attempt.success) {
             const attack = attacker.attack();
             const life = attacked.decreaseLife(attack.value);
-            addLog(`${attacker.getName()} hits ${attacked.getName()} with ${attack.value} damage, ${attacked.getName()} has ${life} life`);
+            addLog(`${attacker.getName()} hits ${attacked.getName()} with ${attack.value} damage, ${attacked.getName()} has ${life} life`, 'success');
             await sleep(1000);
         } else {
-            addLog(`${attacker.getName()} rolled a ${attempt.value} and missed`);
+            addLog(`${attacker.getName()} rolled a ${attempt.value} and missed`, 'warning');
             await sleep(900);
         }
     }
@@ -154,9 +184,9 @@ export default function Home() {
         if (attempt) {
             const damage = (attempt as roll).value;
             const life = attacked.decreaseLife(damage);
-            addLog(`${attacker.getName()} uses Explosion and hits ${attacked.getName()} with ${damage} damage, ${attacked.getName()} has ${life} life`);
+            addLog(`${attacker.getName()} uses Explosion and hits ${attacked.getName()} with ${damage} damage, ${attacked.getName()} has ${life} life`, 'success');
         } else {
-            addLog(`${attacker.getName()} tries to use Explosion but fails`);
+            addLog(`${attacker.getName()} tries to use Explosion but fails`, 'warning');
         }
 
         await sleep(1000);
@@ -170,9 +200,9 @@ export default function Home() {
             const life = attacked.increaseLife(heal);
 
             if (attacker.getName() === attacked.getName()) {
-                addLog(`${attacker.getName()} uses Heal and heals ${heal} life, ${attacker.getName()} has ${life} life`);
+                addLog(`${attacker.getName()} uses Heal and heals ${heal} life, ${attacker.getName()} has ${life} life`, 'success');
             } else {
-                addLog(`${attacker.getName()} uses Heal and heals ${heal} life to ${attacked.getName()}, ${attacked.getName()} has ${life} life`);
+                addLog(`${attacker.getName()} uses Heal and heals ${heal} life to ${attacked.getName()}, ${attacked.getName()} has ${life} life`, 'success');
             }
         }
     }
@@ -193,7 +223,7 @@ export default function Home() {
 
     const verifyDead = (player: Player): boolean => {
         if (!player.isAlive()) {
-            addLog(`${player.getName()} is dead`);
+            addLog(`${player.getName()} is dead`, 'error');
             return true;
         }
 
@@ -245,16 +275,7 @@ export default function Home() {
                 )
             }
 
-            <div className="flex flex-col items-center">
-                {logsInScreen.map((log, index) => (
-                    <p
-                        key={index}
-                        className="mb-2 text-center"
-                    >
-                        {log.message}
-                    </p>
-                ))}
-            </div>
+            <Logs logs={logsInScreen} />
         </main>
     );
 }
