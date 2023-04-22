@@ -82,11 +82,11 @@ function Logs({logs}: {logs: Log[]}) {
     }
 
     return (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col">
             {logs.map((log, index) => (
                 <p
                     key={index}
-                    className={`mb-2 text-center p-2 rounded text-sm lg:text-base ${getBackground(log.type)}`}
+                    className={`mb-2 p-2 rounded text-sm lg:text-base ${getBackground(log.type)}`}
                 >
                     {log.message}
                 </p>
@@ -266,10 +266,6 @@ export default function Home() {
     }
 
     const startBattle = async () => {
-        players.forEach((player) => {
-            player.setInventory('Potion', 3);
-        });
-
         setLogsInScreen([]);
         const battle = new Battle(players[0], players[1]);
         const battles = multiplesBattles ? 100 : 1;
@@ -278,24 +274,25 @@ export default function Home() {
             setBattles((prev) => prev + 1);
             const order = battle.getInitiative();
 
-            if (order.length === 2) {
-                const [first, second] = order;
+            const [first, second] = order;
 
-                await initialLogs(first, second);
+            first.setInventory('Potion', 3);
+            second.setInventory('Potion', 3);
 
-                while (true) {
-                    await turn(first, second);
+            await initialLogs(first, second);
 
-                    if (verifyDead(second)) {
-                        setVicttoriesWithInitiative((prev) => prev + 1);
-                        break;
-                    }
+            while (true) {
+                await turn(first, second);
 
-                    await turn(second, first);
+                if (verifyDead(second)) {
+                    setVicttoriesWithInitiative((prev) => prev + 1);
+                    break;
+                }
 
-                    if (verifyDead(first)) {
-                        break;
-                    }
+                await turn(second, first);
+
+                if (verifyDead(first)) {
+                    break;
                 }
             }
         }
