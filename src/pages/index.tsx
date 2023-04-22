@@ -10,32 +10,39 @@ type Log = {
     type: 'info' | 'success' | 'warning' | 'error';
 }
 
+function Bar({ text, value, color = 'bg-green-500' }: { text: string, value: number, color?: string }) {
+    return (
+        <div className="bg-gray-300 h-8 rounded-full mb-2 w-full relative flex items-center">
+            <p className="text-white font-bold z-10 absolute w-full text-center text-sm lg:text-base">
+                {text}
+            </p>
+            <div
+                className={`${color} h-8 rounded-full transition-all duration-1000 absolute top-0`}
+                style={{ width: `${value}%` }}
+            >
+            </div>
+        </div>
+    );
+}
+
 function PlayerStatus({ player }: { player: Player }) {
     const life = player.getLife() > 0 ? player.getLife().toFixed(2) : 0;
     return (
         <div className="flex flex-col items-center mr-3 w-2/5">
-            <p className="text-2xl font-bold mb-1">{player.getName()}</p>
-            <div className="bg-gray-300 h-8 rounded-full mb-2 w-full relative flex items-center">
-                <p className="text-white font-bold z-10 absolute w-full text-center">
-                    {life}%
-                </p>
-                <div
-                    className="bg-green-500 h-8 rounded-full transition-all duration-1000 absolute top-0"
-                    style={{ width: `${life}%` }}
-                >
-                </div>
-            </div>
+            <p className="text-xl lg:text-2xl font-bold mb-1">
+                {player.getName()}
+            </p>
 
-            <div className="bg-gray-300 h-8 rounded-full mb-2 w-full relative flex items-center">
-                <p className="text-white font-bold z-10 absolute w-full text-center">
-                    {player.getEnergy()} / {player.getMaxEnergy()}
-                </p>
-                <div
-                    className="bg-blue-500 h-8 rounded-full transition-all duration-1000 absolute top-0"
-                    style={{ width: `${player.getEnergy() / player.getMaxEnergy() * 100}%` }}
-                >
-                </div>
-            </div>
+            <Bar
+                text={`${life}%`}
+                value={life as number}
+            />
+
+            <Bar
+                text={`${player.getEnergy()} / ${player.getMaxEnergy()}`}
+                value={player.getEnergy() / player.getMaxEnergy() * 100}
+                color="bg-blue-500"
+            />
 
             <p>Potions: {player.getQuantity('Potion')}</p>
         </div>
@@ -76,7 +83,7 @@ function Logs({logs}: {logs: Log[]}) {
             {logs.map((log, index) => (
                 <p
                     key={index}
-                    className={`mb-2 text-center ${getBackground(log.type)} p-2 rounded`}
+                    className={`mb-2 text-center p-2 rounded text-sm lg:text-base ${getBackground(log.type)}`}
                 >
                     {log.message}
                 </p>
@@ -259,7 +266,9 @@ export default function Home() {
 
     return (
         <main className="flex flex-col items-center py-2 mx-auto w-full max-w-4xl px-4">
-            <h1 className="text-4xl text-center font-bold">Battle Simulator</h1>
+            <h1 className="text-3xl lg:text-4xl text-center font-bold">
+                Battle Simulator
+            </h1>
 
             <button onClick={startBattle} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-4">
                 Start Battle
