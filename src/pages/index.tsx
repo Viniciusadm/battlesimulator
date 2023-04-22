@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Battle from "@/battlerpg/Classes/Battle";
 import Player from "@/battlerpg/Classes/Player";
 import { getSpell, Spell } from "@/battlerpg/Database/spells";
-import { d20 } from "@/battlerpg/Helpers/dices";
+import {d20, d6} from "@/battlerpg/Helpers/dices";
 import { roll } from "@/battlerpg/Classes/Dice";
 import { players as warriors } from "@/battlerpg/Database/players";
 
@@ -143,6 +143,12 @@ export default function Home() {
         }
     }
 
+    const receiveEnergy = async (attacker: Player) => {
+        const value = d6.roll(attacker.getExpecifiedSkill('intelligence')).value;
+        attacker.increaseEnergy(value);
+        addLog(`${attacker.getName()} receives ${value} energy`, 'success');
+    }
+
     const attack = async (attacker: Player, attacked: Player) => {
         const attempt = attacker.tryToHit(attacked);
         if (attempt.success) {
@@ -248,7 +254,19 @@ export default function Home() {
 
             await initialLogs(first, second);
 
+            let contage = 0;
+
             while (true) {
+                if (contage % 4 === 0) {
+                    if (first.getEnergy() !== first.getMaxEnergy()) {
+                        await receiveEnergy(first);
+                    }
+
+                    if (second.getEnergy() !== second.getMaxEnergy()) {
+                        await receiveEnergy(second);
+                    }
+                }
+
                 await turn(first, second);
 
                 if (verifyDead(second)) {
@@ -261,6 +279,8 @@ export default function Home() {
                 if (verifyDead(first)) {
                     break;
                 }
+
+                contage++;
             }
         }
     }

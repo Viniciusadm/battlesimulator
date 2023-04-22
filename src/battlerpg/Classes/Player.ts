@@ -87,6 +87,10 @@ export default class Player extends Character {
         this.energy -= spell.energyCost;
     }
 
+    public increaseEnergy(amount: number): void {
+        this.energy = Math.min(this.energy + amount, this.getMaxEnergy());
+    }
+
     public useSpell(spell: Spell, resists: number = 0): roll|boolean {
         if (spell && this.energy >= spell.energyCost) {
             this.decreaseEnergy(spell);
