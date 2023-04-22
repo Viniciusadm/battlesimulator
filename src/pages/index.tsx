@@ -100,8 +100,13 @@ export default function Home() {
     const [players, setPlayers] = useState<Player[]>([]);
     const [quickBattle, setQuickBattle] = useState<boolean>(false);
     const [victories, setVictories] = useState<{player1: number, player2: number}>({player1: 0, player2: 0});
+    const [multiplesBattles, setMultiplesBattles] = useState<boolean>(false);
 
     const addLog = (message: string, type: Log['type'] = 'info') => {
+        if (multiplesBattles) {
+            return;
+        }
+
         setLogsInScreen((prev) => [...prev, {
             message,
             type,
@@ -253,24 +258,28 @@ export default function Home() {
 
         setLogsInScreen([]);
         const battle = new Battle(players[0], players[1]);
-        const order = battle.getInitiative();
+        const battles = multiplesBattles ? 100 : 1;
 
-        if (order.length === 2) {
-            const [first, second] = order;
+        for (let i = 0; i < battles; i++) {
+            const order = battle.getInitiative();
 
-            await initialLogs(first, second);
+            if (order.length === 2) {
+                const [first, second] = order;
 
-            while (true) {
-                await turn(first, second);
+                await initialLogs(first, second);
 
-                if (verifyDead(second)) {
-                    break;
-                }
+                while (true) {
+                    await turn(first, second);
 
-                await turn(second, first);
+                    if (verifyDead(second)) {
+                        break;
+                    }
 
-                if (verifyDead(first)) {
-                    break;
+                    await turn(second, first);
+
+                    if (verifyDead(first)) {
+                        break;
+                    }
                 }
             }
         }
@@ -296,6 +305,7 @@ export default function Home() {
             </div>
 
             <Toggle state={quickBattle} onChange={setQuickBattle} label="Quick Battle" />
+            <Toggle state={multiplesBattles} onChange={setMultiplesBattles} label="Multiples Battles" />
 
             {
                 players.length > 0 && (
