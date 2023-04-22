@@ -154,10 +154,6 @@ export default function Home() {
     }, []);
 
     const initialLogs = async (first: Player, second: Player) => {
-        addLog(`${first.getName()} vs ${second.getName()}`);
-
-        await sleep(1000);
-
         addLog(`${first.getName()} has ${first.getResumedSkills()}`);
         addLog(`${second.getName()} has ${second.getResumedSkills()}`);
 
@@ -251,6 +247,22 @@ export default function Home() {
         return false;
     }
 
+    const changeMultiple = (value: boolean) => {
+        setMultiplesBattles(value);
+
+        if (value) {
+            setQuickBattle(true);
+        }
+    }
+
+    const changeQuickBattle = (value: boolean) => {
+        if (multiplesBattles) {
+            setQuickBattle(true);
+        } else {
+            setQuickBattle(value);
+        }
+    }
+
     const startBattle = async () => {
         players.forEach((player) => {
             player.setInventory('Potion', 3);
@@ -304,8 +316,10 @@ export default function Home() {
                 </button>
             </div>
 
-            <Toggle state={quickBattle} onChange={setQuickBattle} label="Quick Battle" />
-            <Toggle state={multiplesBattles} onChange={setMultiplesBattles} label="Multiples Battles" />
+            <div className="flex flex-col justify-center mb-4">
+                <Toggle state={multiplesBattles} onChange={changeMultiple} label="Multiples Battles" />
+                <Toggle state={quickBattle} onChange={changeQuickBattle} label="Quick Battle" />
+            </div>
 
             {
                 players.length > 0 && (
