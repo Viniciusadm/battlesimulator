@@ -10,18 +10,35 @@ type Log = {
     type: 'info' | 'success' | 'warning' | 'error';
 }
 
-function LifeBar({ life }: { life: number }) {
+function PlayerStatus({ player }: { player: Player }) {
+    const life = player.getLife() > 0 ? player.getLife().toFixed(2) : 0;
     return (
-        <>
-            <div className="bg-gray-200 h-6 rounded-full mb-2 w-full">
+        <div className="flex flex-col items-center mr-3 w-2/5">
+            <p className="text-2xl font-bold mb-1">{player.getName()}</p>
+            <div className="bg-gray-300 h-8 rounded-full mb-2 w-full relative flex items-center">
+                <p className="text-white font-bold z-10 absolute w-full text-center">
+                    {life}%
+                </p>
                 <div
-                    className="bg-green-500 h-6 rounded-full transition-all duration-1000"
+                    className="bg-green-500 h-8 rounded-full transition-all duration-1000 absolute top-0"
                     style={{ width: `${life}%` }}
                 >
                 </div>
             </div>
-            <p className="text-center">{life.toFixed(2)}%</p>
-        </>
+
+            <div className="bg-gray-300 h-8 rounded-full mb-2 w-full relative flex items-center">
+                <p className="text-white font-bold z-10 absolute w-full text-center">
+                    {player.getEnergy()} / {player.getMaxEnergy()}
+                </p>
+                <div
+                    className="bg-blue-500 h-8 rounded-full transition-all duration-1000 absolute top-0"
+                    style={{ width: `${player.getEnergy() / player.getMaxEnergy() * 100}%` }}
+                >
+                </div>
+            </div>
+
+            <p>Potions: {player.getQuantity('Potion')}</p>
+        </div>
     );
 }
 
@@ -193,14 +210,8 @@ export default function Home() {
             {
                 players.length > 0 && (
                     <div className="flex flex-row items-center justify-center mb-4 w-full">
-                        <div className="flex flex-col items-center mr-3 w-2/5">
-                            <p className="text-2xl font-bold mb-1">{players[0].getName()}</p>
-                            <LifeBar life={players[0].getLife() > 0 ? players[0].getLife() : 0} />
-                        </div>
-                        <div className="flex flex-col items-center ml-3 w-2/5">
-                            <p className="text-2xl font-bold mb-1">{players[1].getName()}</p>
-                            <LifeBar life={players[1].getLife() > 0 ? players[1].getLife() : 0} />
-                        </div>
+                        <PlayerStatus player={players[0]} />
+                        <PlayerStatus player={players[1]} />
                     </div>
                 )
             }

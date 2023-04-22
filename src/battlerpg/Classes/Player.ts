@@ -23,7 +23,7 @@ export default class Player extends Character {
         this.skills = skills;
         this.attributes = {...attributes, life: this.getInitialLife(), totalLife: this.getInitialLife()};
         this.armor = this.getCalculatedArmor();
-        this.energy = this.getCalculatedEnergy();
+        this.energy = this.getMaxEnergy();
     }
 
     public getExpecifiedSkill(skill: keyof PlayerSkills): number {
@@ -68,7 +68,7 @@ export default class Player extends Character {
         return 10 + this.getExpecifiedSkill('dexterity');
     }
 
-    private getCalculatedEnergy(): number {
+    public getMaxEnergy(): number {
         return 20 + this.getExpecifiedSkill('intelligence') * 2;
     }
 
@@ -108,10 +108,14 @@ export default class Player extends Character {
     }
 
     public setEnergyInMax(): void {
-        this.energy = this.getCalculatedEnergy();
+        this.energy = this.getMaxEnergy();
     }
 
     private getMyResist(): number {
         return 8 + this.getExpecifiedSkill('intelligence');
+    }
+
+    public getEnergy(): number {
+        return this.energy;
     }
 }
