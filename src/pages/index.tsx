@@ -334,7 +334,7 @@ export default function Home() {
                 <p>
                     Battles: {battles}
                     <br />
-                    Victories with initiative: {victtoriesWithInitiative}
+                    Victories with initiative: {victtoriesWithInitiative} ({(victtoriesWithInitiative / battles * 100).toFixed(2)}%)
                 </p>
             </div>
 
