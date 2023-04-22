@@ -83,7 +83,7 @@ function Logs({logs}: {logs: Log[]}) {
     }
 
     return (
-        <div className="flex flex-col">
+        <>
             {logs.map((log, index) => (
                 <p
                     key={index}
@@ -92,7 +92,7 @@ function Logs({logs}: {logs: Log[]}) {
                     {log.message}
                 </p>
             ))}
-        </div>
+        </>
     );
 }
 
@@ -272,46 +272,52 @@ export default function Home() {
     }
 
     return (
-        <main className="flex flex-col items-center py-2 mx-auto w-full max-w-4xl px-4">
-            <h1 className="text-3xl lg:text-4xl text-center font-bold mb-3">
-                Battle Simulator
-            </h1>
+        <main className="flex flex-col lg:flex-row h-screen max-h-screen">
+            <div className="flex flex-col items-center justify-center bg-gray-200 pt-4 lg:p-4 border-r-2 border-gray-400 w-full lg:w-1/4 h-fit lg:h-full">
+                <h1 className="text-3xl lg:text-4xl text-center font-bold mb-3">
+                    Battle Simulator
+                </h1>
 
-            <div className="mb-3">
-                <button onClick={startBattle} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-4">
-                    Start Battle
-                </button>
-                <button onClick={clearVictories} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded my-4 ml-1">
-                    Clear
-                </button>
+                <div className="mb-3">
+                    <button onClick={startBattle} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-4">
+                        Start Battle
+                    </button>
+                    <button onClick={clearVictories} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded my-4 ml-1">
+                        Clear
+                    </button>
+                </div>
+
+                <div className="flex flex-col justify-center mb-3">
+                    <Toggle state={multiplesBattles} onChange={changeMultiple} label="Multiples Battles" />
+                    <Toggle state={quickBattle} onChange={changeQuickBattle} label="Quick Battle" />
+                </div>
+
+                <div className="flex flex-col justify-center mb-3">
+                    <p className="text-2xl font-bold">
+                        General Data
+                    </p>
+                    <p>
+                        Battles: {battles}
+                        <br />
+                        Victories with initiative: {victtoriesWithInitiative} ({(victtoriesWithInitiative / battles * 100).toFixed(2)}%)
+                    </p>
+                </div>
             </div>
 
-            <div className="flex flex-col justify-center mb-3">
-                <Toggle state={multiplesBattles} onChange={changeMultiple} label="Multiples Battles" />
-                <Toggle state={quickBattle} onChange={changeQuickBattle} label="Quick Battle" />
+            <div className="flex flex-col bg-gray-200 lg:p-4 w-full lg:w-3/4 h-full">
+                {
+                    players.length > 0 && (
+                        <div className="flex flex-row justify-center lg:h-1/4 mb-3">
+                            <PlayerStatus player={players[0]} victory={victories.player1} />
+                            <PlayerStatus player={players[1]} victory={victories.player2} />
+                        </div>
+                    )
+                }
+
+                <div className="flex flex-col items-center overflow-y-auto w-full lg:h-3/4">
+                    <Logs logs={logsInScreen} />
+                </div>
             </div>
-
-            <div className="flex flex-col justify-center mb-3">
-                <p className="text-2xl font-bold">
-                    General Data
-                </p>
-                <p>
-                    Battles: {battles}
-                    <br />
-                    Victories with initiative: {victtoriesWithInitiative} ({(victtoriesWithInitiative / battles * 100).toFixed(2)}%)
-                </p>
-            </div>
-
-            {
-                players.length > 0 && (
-                    <div className="flex flex-row items-center justify-center mb-4 w-full">
-                        <PlayerStatus player={players[0]} victory={victories.player1} />
-                        <PlayerStatus player={players[1]} victory={victories.player2} />
-                    </div>
-                )
-            }
-
-            <Logs logs={logsInScreen} />
         </main>
     );
 }

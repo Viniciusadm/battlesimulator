@@ -95,7 +95,7 @@ export default class Player extends Character {
                 return false;
             }
 
-            return  Dice.rollMultiple(spell.dices, this.getExpecifiedSkill('intelligence'));
+            return Dice.rollMultiple(spell.dices, this.getExpecifiedSkill('intelligence'));
         }
 
         return false;
