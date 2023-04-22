@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Battle from "@/battlerpg/Classes/Battle";
 import Player from "@/battlerpg/Classes/Player";
 import { getSpell, Spell } from "@/battlerpg/Database/spells";
-import { d20, d8 } from "@/battlerpg/Helpers/dices";
+import { d20, d6, d8 } from "@/battlerpg/Helpers/dices";
 import { roll } from "@/battlerpg/Classes/Dice";
 
 type Log = {
@@ -133,11 +133,11 @@ export default function Home() {
             name: "Megumin",
         }, {
             strength: 13,
-            dexterity: 15,
-            charisma: 12,
-            constitution: 14,
-            intelligence: 8,
-            wisdom: 10,
+            dexterity: 14,
+            charisma: 10,
+            constitution: 12,
+            intelligence: 15,
+            wisdom: 8,
         });
 
         const firebal = getSpell('Explosion');
@@ -151,6 +151,8 @@ export default function Home() {
 
         Kazuma.setWatchArmor(12, true);
         Kazuma.setWatchWeapon(d8, 'melee');
+
+        Megumin.setWatchWeapon(d6, 'range');
 
         setPlayers([Kazuma, Megumin]);
     }, []);
