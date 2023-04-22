@@ -1,3 +1,5 @@
+import Dice from "@/battlerpg/Classes/Dice";
+
 export type InventoryItems = {
     name: string;
     quantity: number;
@@ -8,12 +10,17 @@ type Watch = {
         value: number,
         incrementable: boolean
     } | undefined;
+    weapon: {
+        dice: Dice,
+        type: 'melee' | 'range',
+    } | undefined;
 }
 
 export default class Inventory {
     private inventory: InventoryItems[] = [];
     protected watch: Watch = {
         armor: undefined,
+        weapon: undefined,
     }
 
     public addInventory(name: string, quantity: number): void {
@@ -57,5 +64,9 @@ export default class Inventory {
 
     public setWatchArmor(value: number, incrementable: boolean): void {
         this.watch.armor = { value, incrementable };
+    }
+
+    public setWatchWeapon(dice: Dice, type: 'melee' | 'range'): void {
+        this.watch.weapon = { dice, type };
     }
 }

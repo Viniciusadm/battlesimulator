@@ -1,5 +1,5 @@
 import Character from "./Abstracts/Character";
-import { d20, d6 } from "../Helpers/dices";
+import { d20, d4, d6 } from "../Helpers/dices";
 import { Spell } from "../Database/spells";
 import Dice, { roll } from "./Dice";
 
@@ -48,7 +48,13 @@ export default class Player extends Character {
     }
 
     public attack(): roll {
-        return d6.roll(this.getExpecifiedSkill('strength'));
+        if (!this.watch.weapon) {
+            console.log('D4');
+            return d4.roll(this.getExpecifiedSkill('strength'));
+        } else {
+            const skill = this.watch.weapon.type === 'melee' ? 'strength' : 'dexterity';
+            return this.watch.weapon.dice.roll(this.getExpecifiedSkill(skill));
+        }
     }
 
     public heal(potion = 'Potion'): number {

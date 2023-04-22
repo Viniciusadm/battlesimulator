@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Battle from "@/battlerpg/Classes/Battle";
 import Player from "@/battlerpg/Classes/Player";
 import { getSpell, Spell } from "@/battlerpg/Database/spells";
-import { d20 } from "@/battlerpg/Helpers/dices";
+import { d20, d8 } from "@/battlerpg/Helpers/dices";
 import { roll } from "@/battlerpg/Classes/Dice";
 
 type Log = {
@@ -139,6 +139,7 @@ export default function Home() {
         }
 
         Kazuma.setWatchArmor(12, true);
+        Kazuma.setWatchWeapon(d8, 'melee');
 
         setPlayers([Kazuma, Megumin]);
     }, []);
