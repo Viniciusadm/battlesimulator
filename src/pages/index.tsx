@@ -84,7 +84,7 @@ function Logs({logs}: {logs: Log[]}) {
 
     return (
         <>
-            {logs.map((log, index) => (
+            {logs.reverse().map((log, index) => (
                 <p
                     key={index}
                     className={`mb-2 p-2 rounded text-sm lg:text-base ${getBackground(log.type)}`}
