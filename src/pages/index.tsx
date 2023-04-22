@@ -3,6 +3,7 @@ import Battle from "@/battlerpg/Classes/Battle";
 import Player from "@/battlerpg/Classes/Player";
 import { addSpell, getSpell, Spell } from "@/battlerpg/Database/spells";
 import { d12, d20 } from "@/battlerpg/Helpers/dices";
+import { roll } from "@/battlerpg/Classes/Dice";
 
 type Log = {
     message: string;
@@ -109,13 +110,14 @@ export default function Home() {
     }
 
     const attack = async (attacker: Player, attacked: Player) => {
-        if (attacker.tryToHit(attacked)) {
-            const damage = attacker.attack();
-            const life = attacked.decreaseLife(damage);
-            addLog(`${attacker.getName()} hits ${attacked.getName()} with ${damage} damage, ${attacked.getName()} has ${life} life`);
+        const attempt = attacker.tryToHit(attacked);
+        if (attempt.success) {
+            const attack = attacker.attack();
+            const life = attacked.decreaseLife(attack.value);
+            addLog(`${attacker.getName()} hits ${attacked.getName()} with ${attack.value} damage, ${attacked.getName()} has ${life} life`);
             await sleep(1000);
         } else {
-            addLog(`${attacker.getName()} misses ${attacked.getName()}`);
+            addLog(`${attacker.getName()} rolled a ${attempt.value} and missed`);
             await sleep(900);
         }
     }
@@ -123,9 +125,10 @@ export default function Home() {
     const spell = async (attacker: Player, attacked: Player, spell: Spell) => {
         const resists = d20.roll().value;
 
-        const damage = attacker.useSpell(spell, resists);
-        if (damage) {
-            const life = attacked.decreaseLife(damage as number);
+        const attempt = attacker.useSpell(spell, resists);
+        if (attempt) {
+            const damage = (attempt as roll).value;
+            const life = attacked.decreaseLife(damage);
             addLog(`${attacker.getName()} uses Explosion and hits ${attacked.getName()} with ${damage} damage, ${attacked.getName()} has ${life} life`);
         } else {
             addLog(`${attacker.getName()} tries to use Explosion but fails`);

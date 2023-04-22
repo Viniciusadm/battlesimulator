@@ -1,7 +1,7 @@
 import Character from "./Abstracts/Character";
 import { d20, d6 } from "../Helpers/dices";
 import { Spell } from "../Database/spells";
-import Dice from "./Dice";
+import Dice, { roll } from "./Dice";
 
 export type PlayerSkills = {
     strength: number;
@@ -40,14 +40,17 @@ export default class Player extends Character {
         return skills;
     }
 
-    public tryToHit(target: Player): boolean {
+    public tryToHit(target: Player): roll & { success: boolean } {
         const playerDexterity = this.getExpecifiedSkill('strength');
-        const { value: playerHit } = d20.roll(playerDexterity);
-        return playerHit > target.armor;
+        const roll = d20.roll(playerDexterity);
+        return {
+            ...roll,
+            success: roll.value >= target.armor,
+        }
     }
 
-    public attack(): number {
-        return d6.roll(this.getExpecifiedSkill('strength')).value;
+    public attack(): roll {
+        return d6.roll(this.getExpecifiedSkill('strength'));
     }
 
     public heal(potion = 'Potion'): number {
@@ -77,7 +80,7 @@ export default class Player extends Character {
         this.energy -= spell.energyCost;
     }
 
-    public useSpell(spell: Spell, resists: number = 0): number|boolean {
+    public useSpell(spell: Spell, resists: number = 0): roll|boolean {
         if (spell && this.energy >= spell.energyCost) {
             this.decreaseEnergy(spell);
 
@@ -85,12 +88,10 @@ export default class Player extends Character {
                 return false;
             }
 
-            let total = Dice.rollMultiple(spell.dices).value;
-
-            return total + this.getExpecifiedSkill('intelligence');
+            return  Dice.rollMultiple(spell.dices, this.getExpecifiedSkill('intelligence'));
         }
 
-        return 0;
+        return false;
     }
 
     public canSpell(spellName: string): boolean {
