@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from "react-hook-form";
 import { Form } from "@/components/Form";
+import api from "@/services/api";
 
 const createPlayerSchema = z.object({
     id: z.string().optional(),
@@ -163,11 +164,11 @@ export default function Players({ players }: { players: CreatePlayerData[] }) {
 }
 
 export async function getServerSideProps() {
-    let { data } = await supabase.from('players').select()
+    const res = await api.get('/players');
 
     return {
         props: {
-            players: data
+            players: res.data || [],
         },
     }
 }

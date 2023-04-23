@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from "react-hook-form";
 import { Form } from "@/components/Form";
 import Dice from "@/battlerpg/Classes/Dice";
+import api from "@/services/api";
 
 export type Spell = {
     id?: string;
@@ -130,11 +131,11 @@ export default function Spells({ spells }: { spells: CreateSpellData[] }) {
 }
 
 export async function getServerSideProps() {
-    let { data } = await supabase.from('spells').select()
+    const res = await api.get('/spells');
 
     return {
         props: {
-            spells: data
+            spells: res.data || [],
         },
     }
 }
