@@ -4,17 +4,43 @@ import Select from "@/components/Select";
 import Checkbox from "@/components/Checkbox";
 import supabase from "@/services/supabase";
 import Dice from "@/battlerpg/Classes/Dice";
+import { enqueueSnackbar } from "notistack";
 
 export type Spell = {
-    id: string;
+    id?: string;
     name: string;
-    energyCost: number;
+    energy_cost: number;
     dices: Dice[];
     type: 'attack' | 'heal';
 };
 
 export default function Spells({ spells }: { spells: Spell[] }) {
-    const [spell, setSpell] = useState<Spell>({} as Spell);
+    const [spell, setSpell] = useState<Spell>({
+        name: '',
+        energy_cost: 0,
+        dices: [],
+        type: 'attack',
+    } as Spell);
+
+    const handleAddSpell = async () => {
+        const { data, error } = await supabase
+            .from('spells')
+            .insert(spell)
+            .select()
+
+        if (error) {
+            console.log(error)
+        }
+
+        setSpell({
+            name: '',
+            energy_cost: 0,
+            dices: [],
+            type: 'attack',
+        } as Spell)
+
+        enqueueSnackbar('Spell added!', { variant: 'success' })
+    }
 
     return (
         <main className="flex flex-col w-full flex-1 px-20">
@@ -31,8 +57,8 @@ export default function Spells({ spells }: { spells: Spell[] }) {
                 <Input
                     label="Energy Cost"
                     name="energy"
-                    value={spell.energyCost}
-                    onChange={(value) => setSpell({ ...spell, energyCost: value as number })}
+                    value={spell.energy_cost}
+                    onChange={(value) => setSpell({ ...spell, energy_cost: value as number })}
                 />
                 <Select
                     label="Type"
@@ -60,6 +86,7 @@ export default function Spells({ spells }: { spells: Spell[] }) {
 
                 <button
                     className="bg-black text-white rounded px-4 py-2"
+                    onClick={handleAddSpell}
                 >
                     Add Spell
                 </button>
@@ -69,7 +96,7 @@ export default function Spells({ spells }: { spells: Spell[] }) {
                 {spells.map((spell) => (
                     <div key={spell.id} className="flex flex-col">
                         <h2 className="text-2xl font-bold">{spell.name}</h2>
-                        <p>Energy Cost: {spell.energyCost}</p>
+                        <p>Energy Cost: {spell.energy_cost}</p>
                         <p>Type: {spell.type}</p>
                         <p>Dices: {spell.dices?.join(', ')}</p>
                     </div>
