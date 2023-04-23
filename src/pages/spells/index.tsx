@@ -1,35 +1,12 @@
-import { database } from "@/services/firebase";
-import { onValue, push, ref } from "firebase/database";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Input from "@/components/Input";
 import Select from "@/components/Select";
 import Checkbox from "@/components/Checkbox";
 import { Spell } from "@/contexts/ItemsContext";
+import supabase from "@/services/supabase";
 
-export default function Spells() {
-    const [spells, setSpells] = useState<Spell[]>([]);
+export default function Spells({ spells }: { spells: Spell[] }) {
     const [spell, setSpell] = useState<Spell>({} as Spell);
-
-    useEffect(() => {
-        const dbRef = ref(database, 'spells');
-        onValue(dbRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                setSpells(Object.values(data));
-            }
-        });
-    }, []);
-
-    const handleAddSpell = () => {
-        const dbRef = ref(database, 'spells');
-        const value = {
-            ...spell,
-            dices: spell.dices.map((d) => parseInt(d as unknown as string)),
-        }
-        push(dbRef, value);
-
-        setSpell({} as Spell);
-    }
 
     return (
         <main className="flex flex-col w-full flex-1 px-20">
@@ -75,7 +52,6 @@ export default function Spells() {
 
                 <button
                     className="bg-black text-white rounded px-4 py-2"
-                    onClick={handleAddSpell}
                 >
                     Add Spell
                 </button>
@@ -93,4 +69,14 @@ export default function Spells() {
             </div>
         </main>
     )
+}
+
+export async function getServerSideProps() {
+    let { data } = await supabase.from('spells').select()
+
+    return {
+        props: {
+            spells: data
+        },
+    }
 }
