@@ -14,22 +14,38 @@ export type Spell = {
     type: 'attack' | 'heal';
 };
 
-export default function Spells({ spells }: { spells: Spell[] }) {
-    const [spell, setSpell] = useState<Spell>({
+export type SpellResponse = {
+    id?: string;
+    name: string;
+    energy_cost: number;
+    dices: number[];
+    type: 'attack' | 'heal';
+}
+
+export default function Spells({ spells }: { spells: SpellResponse[] }) {
+    const [spell, setSpell] = useState<SpellResponse>({
         name: '',
         energy_cost: 0,
         dices: [],
         type: 'attack',
-    } as Spell);
+    } as SpellResponse);
+
+    const [spellsState, setSpellsState] = useState<SpellResponse[]>(spells);
 
     const handleAddSpell = async () => {
+        const payload = {
+            ...spell,
+            dices: spell.dices.map((dice) => parseInt(dice as unknown as string)),
+        }
+
         const { data, error } = await supabase
             .from('spells')
-            .insert(spell)
+            .insert(payload)
             .select()
 
         if (error) {
-            console.log(error)
+            enqueueSnackbar(error.message, { variant: 'error' })
+            return;
         }
 
         setSpell({
@@ -37,9 +53,10 @@ export default function Spells({ spells }: { spells: Spell[] }) {
             energy_cost: 0,
             dices: [],
             type: 'attack',
-        } as Spell)
+        } as SpellResponse)
 
         enqueueSnackbar('Spell added!', { variant: 'success' })
+        setSpellsState([...spellsState, data[0] as SpellResponse]);
     }
 
     return (
@@ -93,7 +110,7 @@ export default function Spells({ spells }: { spells: Spell[] }) {
             </div>
 
             <div className="flex flex-col mt-4">
-                {spells.map((spell) => (
+                {spellsState.map((spell) => (
                     <div key={spell.id} className="flex flex-col">
                         <h2 className="text-2xl font-bold">{spell.name}</h2>
                         <p>Energy Cost: {spell.energy_cost}</p>
