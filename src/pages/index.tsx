@@ -4,96 +4,9 @@ import Player from "@/battlerpg/Classes/Player";
 import { d10, d20, d6, d8 } from "@/battlerpg/Helpers/dices";
 import { roll } from "@/battlerpg/Classes/Dice";
 import { Spell } from "@/pages/spells";
-
-type Log = {
-    message: string;
-    type: 'info' | 'success' | 'warning' | 'error';
-}
-
-function Bar({ text, value, color = 'bg-green-500' }: { text: string, value: number, color?: string }) {
-    return (
-        <div className="bg-gray-300 h-8 rounded-full mb-2 w-full relative flex items-center">
-            <p className="text-white font-bold z-10 absolute w-full text-center text-sm lg:text-base">
-                {text}
-            </p>
-            <div
-                className={`${color} h-8 rounded-full transition-all duration-1000 absolute top-0`}
-                style={{ width: `${value}%` }}
-            >
-            </div>
-        </div>
-    );
-}
-
-function PlayerStatus({ player, victory }: { player: Player, victory: number }) {
-    const life = player.getLife() > 0 ? player.getLife().toFixed(2) : 0;
-    return (
-        <div className="flex flex-col items-center mr-3 w-2/5">
-            <p className="text-xl lg:text-2xl font-bold mb-1">
-                {player.getName()}
-            </p>
-            <p className="text-base lg:text-xl font-bold mb-1">
-                {victory} victories
-            </p>
-
-            <Bar
-                text={`${life}%`}
-                value={life as number}
-            />
-
-            <Bar
-                text={`${player.getEnergy()} / ${player.getMaxEnergy()}`}
-                value={player.getEnergy() / player.getMaxEnergy() * 100}
-                color="bg-blue-500"
-            />
-
-            <p>Potions: {player.getQuantity('Potion')}</p>
-        </div>
-    );
-}
-
-function Toggle({ state, label, onChange }: { state: boolean, label: string, onChange: (value: boolean) => void }) {
-    return (
-        <label className="relative inline-flex items-center mb-5 cursor-pointer">
-            <input type="checkbox" value="" className="sr-only peer" checked={state} onChange={(e) => onChange(e.target.checked)} />
-                <div
-                    className="w-11 h-6 bg-gray-300 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-500"
-                >
-                </div>
-                <span className="ml-3 text-sm font-medium text-gray-400 dark:text-gray-500">{ label }</span>
-        </label>
-    );
-}
-
-function Logs({logs}: {logs: Log[]}) {
-    const getBackground = (type: Log['type']) => {
-        switch (type) {
-            case 'info':
-                return 'bg-blue-200';
-            case 'success':
-                return 'bg-green-200';
-            case 'warning':
-                return 'bg-yellow-200';
-            case 'error':
-                return 'bg-red-200';
-            default:
-                return 'bg-gray-200';
-        }
-    }
-
-    return (
-        <>
-            {logs.reverse().map((log, index) => (
-                <p
-                    key={index}
-                    className={`mb-2 p-2 rounded text-center text-sm lg:text-base w-full lg:w-1/2 ${getBackground(log.type)}`}
-                >
-                    {log.message}
-                </p>
-            ))}
-        </>
-    );
-}
+import PlayerStatus from "@/components/battle/PlayerStatus";
+import Toggle from "@/components/utils/Toggle";
+import Logs, { Log } from "@/components/battle/Logs";
 
 export default function Home() {
     const [logsInScreen, setLogsInScreen] = useState<Log[]>([]);
