@@ -1,22 +1,32 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Battle from "@/battlerpg/Classes/Battle";
 import Player from "@/battlerpg/Classes/Player";
-import { d10, d20, d6, d8 } from "@/battlerpg/Helpers/dices";
+import { d20, d6, d8 } from "@/battlerpg/Helpers/dices";
 import { roll } from "@/battlerpg/Classes/Dice";
 import { Spell } from "@/pages/spells";
 import PlayerStatus from "@/components/battle/PlayerStatus";
 import Toggle from "@/components/utils/Toggle";
 import Logs, { Log } from "@/components/battle/Logs";
+import supabase from "@/services/supabase";
+import { CreatePlayerData } from "@/pages/players";
 
-export default function Home() {
+export default function Home({ players_selectables }: { players_selectables: CreatePlayerData[] }) {
     const [logsInScreen, setLogsInScreen] = useState<Log[]>([]);
-    const [players, setPlayers] = useState<Player[]>([]);
     const [quickBattle, setQuickBattle] = useState<boolean>(false);
     const [victories, setVictories] = useState<{player1: number, player2: number}>({player1: 0, player2: 0});
     const [multiplesBattles, setMultiplesBattles] = useState<boolean>(false);
     const [battles, setBattles] = useState<number>(0);
     const [victtoriesWithInitiative, setVicttoriesWithInitiative] = useState<number>(0);
+    const [ready, setReady] = useState<boolean>(false);
+    const [players, setPlayers] = useState<{player1?: number, player2?: number}>({player1: undefined, player2: undefined});
+    const [warriors, setWarriors] = useState<{player1?: Player, player2?: Player}>({player1: undefined, player2: undefined});
 
+    const changePlayer = (player: 'player1' | 'player2', id: number) => {
+        setPlayers((prev) => ({
+            ...prev,
+            [player]: id,
+        }));
+    }
 
     const addLog = (message: string, type: Log['type'] = 'info') => {
         if (multiplesBattles) {
@@ -31,51 +41,10 @@ export default function Home() {
 
     const sleep = (ms: number) => new Promise(r => setTimeout(r, quickBattle ? ms / 0 : ms));
 
-    useEffect(() => {
-        const Kazuma = new Player({
-            name: "Kazuma",
-        }, {
-            strength: 15,
-            dexterity: 12,
-            charisma: 13,
-            constitution: 14,
-            intelligence: 8,
-            wisdom: 10,
-        });
-
-        const Megumin = new Player({
-            name: "Megumin",
-        }, {
-            strength: 13,
-            dexterity: 14,
-            charisma: 10,
-            constitution: 12,
-            intelligence: 15,
-            wisdom: 8,
-        });
-
-        const Darkness = new Player({
-            name: "Darkness",
-        }, {
-            strength: 15,
-            dexterity: 12,
-            charisma: 13,
-            constitution: 14,
-            intelligence: 8,
-            wisdom: 10,
-        });
-
-        setPlayers([Kazuma, Megumin, Darkness]);
-    }, []);
-
     const setItems = () => {
-        players[0].setWatchArmor(12, true);
-        players[0].setWatchWeapon(d8, 'melee');
-
-        players[1].setWatchWeapon(d6, 'range');
-
-        players[2].setWatchArmor(18, false);
-        players[2].setWatchWeapon(d10, 'melee');
+        warriors.player1?.setWatchArmor(12, true);
+        warriors.player1?.setWatchWeapon(d8, 'melee');
+        warriors.player2?.setWatchWeapon(d6, 'range');
     }
 
     const initialLogs = async (first: Player, second: Player) => {
@@ -158,7 +127,7 @@ export default function Home() {
         if (!player.isAlive()) {
             addLog(`${player.getName()} is dead`, 'error');
 
-            if (player.getName() === players[0].getName()) {
+            if (player.getName() === warriors.player1?.getName()) {
                 setVictories((prev) => ({...prev, player2: prev.player2 + 1}));
             } else {
                 setVictories((prev) => ({...prev, player1: prev.player1 + 1}));
@@ -186,11 +155,49 @@ export default function Home() {
         }
     }
 
+    const setWarriorsInBatle = () => {
+        const data1 = players_selectables.find((item) => item.id === players.player1);
+        const data2 = players_selectables.find((item) => item.id === players.player2);
+
+        if (!data1 || !data2) {
+            return;
+        }
+
+        const player1 = new Player({
+            name: data1.name,
+        }, {
+            strength: data1.strength,
+            intelligence: data1.intelligence,
+            wisdom: data1.wisdom,
+            dexterity: data1.dexterity,
+            charisma: data1.charisma,
+            constitution: data1.constitution,
+        });
+
+        const player2 = new Player({
+            name: data2.name,
+        }, {
+            strength: data2.strength,
+            intelligence: data2.intelligence,
+            wisdom: data2.wisdom,
+            dexterity: data2.dexterity,
+            charisma: data2.charisma,
+            constitution: data2.constitution,
+        });
+
+        setWarriors({player1, player2});
+        setReady(true);
+    }
+
     const startBattle = async () => {
+        if (!warriors.player1 || !warriors.player2) {
+            return;
+        }
+
         setItems();
 
         setLogsInScreen([]);
-        const battle = new Battle(players[0], players[1]);
+        const battle = new Battle(warriors.player1, warriors.player2);
         const battles = multiplesBattles ? 100 : 1;
 
         for (let i = 0; i < battles; i++) {
@@ -241,15 +248,22 @@ export default function Home() {
         setBattles(0);
     }
 
+    const classNames = ready ? 'w-full lg:w-1/4 h-fit lg:h-full' : 'w-full h-full';
+
     return (
         <main className="flex flex-col lg:flex-row h-screen max-h-screen">
-            <div className="flex flex-col items-center justify-center bg-gray-200 pt-4 lg:p-4 border-r-2 border-gray-400 w-full lg:w-1/4 h-fit lg:h-full">
+            <div
+                className={`flex flex-col items-center justify-center bg-gray-200 pt-4 lg:p-4 border-r-2 border-gray-400 ${classNames}`}>
                 <h1 className="text-3xl lg:text-4xl text-center font-bold mb-3">
                     Battle Simulator
                 </h1>
 
                 <div className="mb-3">
-                    <button onClick={startBattle} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-4">
+                    <button
+                        onClick={startBattle}
+                        disabled={!players.player1 && !players.player2}
+                        className={`text-white font-bold py-2 px-4 rounded my-4 ${players.player1 && players.player2 ? 'bg-blue-500 hover:bg-blue-700' : 'bg-gray-500'}`}
+                    >
                         Start Battle
                     </button>
                     <button onClick={clearVictories} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded my-4 ml-1">
@@ -272,22 +286,76 @@ export default function Home() {
                         Victories with initiative: {victtoriesWithInitiative} ({(victtoriesWithInitiative / battles * 100).toFixed(2)}%)
                     </p>
                 </div>
-            </div>
 
-            <div className="flex flex-col bg-gray-200 lg:p-4 w-full lg:w-3/4 h-full">
-                {
-                    players.length > 0 && (
-                        <div className="flex flex-row justify-center lg:h-1/4 mb-3">
-                            <PlayerStatus player={players[0]} victory={victories.player1} />
-                            <PlayerStatus player={players[1]} victory={victories.player2} />
-                        </div>
-                    )
-                }
+                <div>
+                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="player1">
+                        Player 1
+                    </label>
+                    <select
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        id="player1"
+                        value={players.player1}
+                        onChange={(e) => changePlayer('player1', parseInt(e.target.value))}
+                    >
+                        <option value="">Select a player</option>
+                        {players_selectables.map((player) => (
+                            <option key={player.id} value={player.id}>
+                                {player.name}
+                            </option>
+                        ))}
+                    </select>
 
-                <div className="flex flex-col items-center overflow-y-auto w-full lg:h-3/4 px-4 lg:px-0">
-                    <Logs logs={logsInScreen} />
+                    <label className="block text-gray-700 text-sm font-bold mb-2 mt-4" htmlFor="player2">
+                        Player 2
+                    </label>
+                    <select
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        id="player2"
+                        value={players.player2}
+                        onChange={(e) => changePlayer('player2', parseInt(e.target.value))}
+                    >
+                        <option value="">Select a player</option>
+                        {players_selectables.map((player) => (
+                            <option key={player.id} value={player.id}>
+                                {player.name}
+                            </option>
+                        ))}
+                    </select>
+
+                    <button
+                        onClick={setWarriorsInBatle}
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-4"
+                        disabled={!players.player1 && !players.player2}
+                    >
+                        Set
+                    </button>
                 </div>
             </div>
+
+            {ready && warriors.player1 && warriors.player2 && (
+                <div className="flex flex-col bg-gray-200 lg:p-4 w-full lg:w-3/4 h-full">
+                    {
+                        <div className="flex flex-row justify-center lg:h-1/4 mb-3">
+                            <PlayerStatus player={warriors.player1} victory={victories.player1} />
+                            <PlayerStatus player={warriors.player2} victory={victories.player2} />
+                        </div>
+                    }
+
+                    <div className="flex flex-col items-center overflow-y-auto w-full lg:h-3/4 px-4 lg:px-0">
+                        <Logs logs={logsInScreen} />
+                    </div>
+                </div>
+            )}
         </main>
     );
+}
+
+export async function getServerSideProps() {
+    let { data } = await supabase.from('players').select()
+
+    return {
+        props: {
+            players_selectables: data
+        },
+    }
 }
