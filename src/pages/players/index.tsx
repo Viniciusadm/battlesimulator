@@ -99,6 +99,13 @@ export default function Players({ players }: { players: PlayerResponse[] }) {
                     onChange={(value) => setPlayer({ ...player, wisdom: value as number })}
                     type="number"
                 />
+                <Input
+                    label="Charisma"
+                    name="charisma"
+                    value={player.charisma}
+                    onChange={(value) => setPlayer({ ...player, charisma: value as number })}
+                    type="number"
+                />
                 <button
                     className="bg-black text-white rounded px-4 py-2"
                     onClick={handleAddPlayer}
@@ -117,6 +124,7 @@ export default function Players({ players }: { players: PlayerResponse[] }) {
                             <li>Constitution: {player.constitution}</li>
                             <li>Intelligence: {player.intelligence}</li>
                             <li>Wisdom: {player.wisdom}</li>
+                            <li>Charisma: {player.charisma}</li>
                         </ul>
                     </div>
                 ))}
