@@ -9,8 +9,18 @@ export default async function handler(
 ) {
     const data = await prisma.players.findMany({
         include: {
-            player_spells: true,
+            player_spells: {
+                select: {
+                    spell_id: true
+                },
+            }
         }
     });
-    res.status(200).json(data);
+
+    const playersWithSpellIds = data.map(player => {
+        const spellIds = player.player_spells.map(playerSpell => playerSpell.spell_id);
+        return { ...player, player_spells: spellIds };
+    });
+
+    res.status(200).json(playersWithSpellIds);
 }
