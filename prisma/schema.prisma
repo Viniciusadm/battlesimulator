@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model players {
+  id            Int             @id @default(autoincrement())
+  name          String
+  strength      Int
+  intelligence  Int
+  charisma      Int
+  wisdom        Int
+  dexterity     Int
+  constitution  Int
+  created_at    DateTime        @default(now())
+  player_spells player_spells[]
+}
+
+model spells {
+  id            Int             @id @default(autoincrement())
+  name          String
+  energy_cost   Int
+  type          String
+  dices         String
+  created_at    DateTime        @default(now())
+  player_spells player_spells[]
+}
+
+model player_spells {
+  id         Int      @id @default(autoincrement())
+  player_id  Int
+  spell_id   Int
+  created_at DateTime @default(now())
+  player     players  @relation(fields: [player_id], references: [id])
+  spell      spells   @relation(fields: [spell_id], references: [id])
+}
