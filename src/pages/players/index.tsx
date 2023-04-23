@@ -1,36 +1,58 @@
 import { useState } from "react";
-import Input from "@/components/Input";
 import supabase from "@/services/supabase";
 import { enqueueSnackbar } from "notistack";
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { FormProvider, useForm } from "react-hook-form";
+import { Form } from "@/components/Form";
 
-export type PlayerResponse = {
-    id?: string;
-    name: string;
-    strength: number;
-    dexterity: number;
-    constitution: number;
-    intelligence: number;
-    wisdom: number;
-    charisma: number;
-}
+const createPlayerSchema = z.object({
+    id: z.string().optional(),
+    name: z.string(),
+    strength: z.preprocess(
+        (a) => parseInt(z.string().parse(a), 10),
+        z.number().positive().min(8).max(15)
+    ),
+    dexterity: z.preprocess(
+        (a) => parseInt(z.string().parse(a), 10),
+        z.number().positive().min(8).max(15)
+    ),
+    constitution: z.preprocess(
+        (a) => parseInt(z.string().parse(a), 10),
+        z.number().positive().min(8).max(15)
+    ),
+    intelligence: z.preprocess(
+        (a) => parseInt(z.string().parse(a), 10),
+        z.number().positive().min(8).max(15)
+    ),
+    wisdom: z.preprocess(
+        (a) => parseInt(z.string().parse(a), 10),
+        z.number().positive().min(8).max(15)
+    ),
+    charisma: z.preprocess(
+        (a) => parseInt(z.string().parse(a), 10),
+        z.number().positive().min(8).max(15)
+    ),
+})
 
-export default function Players({ players }: { players: PlayerResponse[] }) {
-    const [player, setPlayer] = useState<PlayerResponse>({
-        name: '',
-        charisma: 0,
-        constitution: 0,
-        dexterity: 0,
-        wisdom: 0,
-        strength: 0,
-        intelligence: 0,
-    } as PlayerResponse);
+type CreatePlayerData = z.infer<typeof createPlayerSchema>
 
-    const [playersState, setPlayersState] = useState<PlayerResponse[]>(players);
+export default function Players({ players }: { players: CreatePlayerData[] }) {
+    const createPlayerForm = useForm<CreatePlayerData>({
+        resolver: zodResolver(createPlayerSchema),
+    })
 
-    const handleAddPlayer = async () => {
-        const { data, error } = await supabase
+    const [playersState, setPlayersState] = useState<CreatePlayerData[]>(players);
+
+    const {
+        handleSubmit,
+        formState: { isSubmitting },
+    } = createPlayerForm;
+
+    const handleAddPlayer = async (data: CreatePlayerData) => {
+        const { data: PlayerData, error } = await supabase
             .from('players')
-            .insert(player)
+            .insert(data)
             .select()
 
         if (error) {
@@ -38,83 +60,89 @@ export default function Players({ players }: { players: PlayerResponse[] }) {
             return;
         }
 
-        setPlayer({
-            name: '',
-            charisma: 0,
-            constitution: 0,
-            dexterity: 0,
-            wisdom: 0,
-            strength: 0,
-            intelligence: 0,
-        } as PlayerResponse)
-
         enqueueSnackbar('Player added!', { variant: 'success' })
-        setPlayersState([...playersState, data[0] as PlayerResponse]);
+        setPlayersState([...playersState, PlayerData[0] as CreatePlayerData]);
     }
 
     return (
-        <main className="flex flex-col w-full flex-1 px-20">
+        <main className="flex flex-col w-full flex-1 px-20 max-w-7xl mx-auto">
             <h1 className="text-4xl font-bold my-4">
                 Players
             </h1>
-            <div className="flex flex-col">
-                <Input
-                    label="Name"
-                    name="name"
-                    value={player.name}
-                    onChange={(value) => setPlayer({ ...player, name: value as string })}
-                />
-                <Input
-                    label="Strength"
-                    name="strength"
-                    value={player.strength}
-                    onChange={(value) => setPlayer({ ...player, strength: value as number })}
-                    type="number"
-                />
-                <Input
-                    label="Dexterity"
-                    name="dexterity"
-                    value={player.dexterity}
-                    onChange={(value) => setPlayer({ ...player, dexterity: value as number })}
-                    type="number"
-                />
-                <Input
-                    label="Constitution"
-                    name="constitution"
-                    value={player.constitution}
-                    onChange={(value) => setPlayer({ ...player, constitution: value as number })}
-                    type="number"
-                />
-                <Input
-                    label="Intelligence"
-                    name="intelligence"
-                    value={player.intelligence}
-                    onChange={(value) => setPlayer({ ...player, intelligence: value as number })}
-                    type="number"
-                />
-                <Input
-                    label="Wisdom"
-                    name="wisdom"
-                    value={player.wisdom}
-                    onChange={(value) => setPlayer({ ...player, wisdom: value as number })}
-                    type="number"
-                />
-                <Input
-                    label="Charisma"
-                    name="charisma"
-                    value={player.charisma}
-                    onChange={(value) => setPlayer({ ...player, charisma: value as number })}
-                    type="number"
-                />
-                <button
-                    className="bg-black text-white rounded px-4 py-2"
-                    onClick={handleAddPlayer}
-                >
-                    Add Player
-                </button>
-            </div>
 
-            <div className="flex flex-col mt-4">
+            <FormProvider {...createPlayerForm}>
+                <form
+                    onSubmit={handleSubmit(handleAddPlayer)}
+                    className="flex flex-col gap-4 w-full"
+                >
+                    <Form.Field>
+                        <Form.Label htmlFor="name">
+                            Name
+                        </Form.Label>
+                        <Form.Input type="name" name="name" />
+                        <Form.ErrorMessage field="name" />
+                    </Form.Field>
+
+                    <Form.Field>
+                        <Form.Label htmlFor="strength">
+                            Strength
+                        </Form.Label>
+                        <Form.Input type="number" name="strength" />
+                        <Form.ErrorMessage field="strength" />
+                    </Form.Field>
+
+                    <Form.Field>
+                        <Form.Label htmlFor="dexterity">
+                            Dexterity
+                        </Form.Label>
+                        <Form.Input type="number" name="dexterity" />
+                        <Form.ErrorMessage field="dexterity" />
+                    </Form.Field>
+
+                    <Form.Field>
+                        <Form.Label htmlFor="constitution">
+                            Constitution
+                        </Form.Label>
+                        <Form.Input type="number" name="constitution" />
+                        <Form.ErrorMessage field="constitution" />
+                    </Form.Field>
+
+                    <Form.Field>
+                        <Form.Label htmlFor="intelligence">
+                            Intelligence
+                        </Form.Label>
+                        <Form.Input type="number" name="intelligence" />
+                        <Form.ErrorMessage field="intelligence" />
+                    </Form.Field>
+
+                    <Form.Field>
+                        <Form.Label htmlFor="wisdom">
+                            Wisdom
+                        </Form.Label>
+                        <Form.Input type="number" name="wisdom" />
+                        <Form.ErrorMessage field="wisdom" />
+                    </Form.Field>
+
+                    <Form.Field>
+                        <Form.Label htmlFor="charisma">
+                            Charisma
+                        </Form.Label>
+                        <Form.Input type="number" name="charisma" />
+                        <Form.ErrorMessage field="charisma" />
+                    </Form.Field>
+
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="bg-violet-500 text-white rounded px-3 h-10 font-semibold text-sm hover:bg-violet-600"
+                    >
+                        Salvar
+                    </button>
+                </form>
+            </FormProvider>
+
+
+            <div className="flex flex-col my-4">
                 {playersState.map((player) => (
                     <div key={player.id} className="flex flex-col">
                         <h2 className="text-2xl font-bold">{player.name}</h2>
