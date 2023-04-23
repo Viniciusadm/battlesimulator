@@ -1,24 +1,47 @@
 import { NextPageContext } from 'next';
-import { PlayerResponse } from "@/pages/players";
-import { SpellResponse } from "@/pages/spells";
 import supabase from "@/services/supabase";
-import Checkbox from "@/components/Checkbox";
-import { useState } from "react";
 import { enqueueSnackbar } from "notistack";
+import { CreatePlayerData } from "@/pages/players/index";
+import { CreateSpellData } from "@/pages/spells";
+import { z } from "zod";
+import { FormProvider, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "@/components/Form";
 
-export default function Player({ player, spells }: { player: PlayerResponse, spells: SpellResponse[] }) {
-    const [spellsState, setSpellsState] = useState<SpellResponse[]>(spells);
-    const [playerSpells, setPlayerSpells] = useState<string[]>([]);
+const creatPlayerSpellsSchema = z.object({
+    spells: z.preprocess(
+        (a) => {
+            if (Array.isArray(a)) {
+                return a.map((id) => parseInt(id, 10));
+            } else {
+                return [];
+            }
+        },
+        z.array(z.number())
+    ),
+});
 
-    const handleAddSpells = async () => {
+type CreatePlayerSpellsData = z.infer<typeof creatPlayerSpellsSchema>;
+
+export default function Player({ player, spells }: { player: CreatePlayerData, spells: CreateSpellData[] }) {
+    const createPlayerSpellsForm = useForm<CreatePlayerSpellsData>({
+        resolver: zodResolver(creatPlayerSpellsSchema),
+    });
+
+    const {
+        handleSubmit,
+        formState: { isSubmitting },
+    } = createPlayerSpellsForm;
+
+    const handleAddSpells = async (data: CreatePlayerSpellsData) => {
         await supabase
             .from('player_spells')
             .delete()
             .match({ player_id: player.id });
 
-        const { data, error } = await supabase
+        const { data: SpellsData, error } = await supabase
             .from('player_spells')
-            .insert(playerSpells.map(spell => {
+            .insert(data.spells.map(spell => {
                 return {
                     player_id: player.id,
                     spell_id: spell,
@@ -50,29 +73,36 @@ export default function Player({ player, spells }: { player: PlayerResponse, spe
                 </ul>
             </div>
 
-            <form>
-                <Checkbox
-                    label="Spells"
-                    name="player_spells"
-                    value={playerSpells as []}
-                    onChange={(value) => setPlayerSpells(value as [])}
-                    values={spellsState.map(spell => {
-                        return {
-                            label: spell.name as string,
-                            value: spell.id as string,
-                            id: spell.id as string,
-                        }
-                    })}
-                />
-
-                <button
-                    className="bg-black text-white rounded px-4 py-2"
-                    onClick={handleAddSpells}
-                    type="button"
+            <FormProvider {...createPlayerSpellsForm}>
+                <form
+                    onSubmit={handleSubmit(handleAddSpells)}
                 >
-                    Add Spells
-                </button>
-            </form>
+                    <h2 className="text-2xl font-bold mb-3">
+                        Spells
+                    </h2>
+                    {
+                        spells.map(spell => (
+                            <Form.Field key={spell.id} className="mb-2">
+                                <div className="flex items-center">
+                                    <Form.Input id={`spell_${spell.id}`} type="checkbox" name="spells[]" value={spell.id} className="w-5 h-5 mr-2" />
+                                    <Form.Label htmlFor={`spell_${spell.id}`}>
+                                        {spell.name}
+                                    </Form.Label>
+                                </div>
+                                <Form.ErrorMessage field="spells" />
+                            </Form.Field>
+                        ))
+                    }
+
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="bg-violet-500 text-white rounded px-3 h-10 font-semibold text-sm hover:bg-violet-600"
+                    >
+                        Salvar
+                    </button>
+                </form>
+            </FormProvider>
         </main>
     );
 }
@@ -80,12 +110,18 @@ export default function Player({ player, spells }: { player: PlayerResponse, spe
 export async function getServerSideProps(context: NextPageContext) {
     const { id } = context.query;
     const { data: player } = await supabase.from('players').select().eq('id', id).single();
-    const { data: spells } = await supabase.from('spells').select();
 
     if (!player) {
         return {
             notFound: true
         }
+    }
+
+    const { data: spells } = await supabase.from('spells').select();
+    const { data: playerSpells } = await supabase.from('player_spells').select().eq('player_id', id);
+
+    if (playerSpells) {
+        player.spells = playerSpells.map(spell => spell.spell_id);
     }
 
     return {

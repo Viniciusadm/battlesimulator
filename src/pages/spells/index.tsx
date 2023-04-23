@@ -29,7 +29,7 @@ const createSpellSchema = z.object({
     type: z.enum(['attack', 'heal']),
 })
 
-type CreateSpellData = z.infer<typeof createSpellSchema>
+export type CreateSpellData = z.infer<typeof createSpellSchema>
 
 export default function Spells({ spells }: { spells: CreateSpellData[] }) {
     const createSpellForm = useForm<CreateSpellData>({

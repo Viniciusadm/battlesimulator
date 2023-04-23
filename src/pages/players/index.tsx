@@ -33,9 +33,10 @@ const createPlayerSchema = z.object({
         (a) => parseInt(z.string().parse(a), 10),
         z.number().positive().min(8).max(15)
     ),
+    spells: z.array(z.number()).optional(),
 })
 
-type CreatePlayerData = z.infer<typeof createPlayerSchema>
+export type CreatePlayerData = z.infer<typeof createPlayerSchema>
 
 export default function Players({ players }: { players: CreatePlayerData[] }) {
     const createPlayerForm = useForm<CreatePlayerData>({
