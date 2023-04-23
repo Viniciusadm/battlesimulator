@@ -1,7 +1,7 @@
 import Character from "./Abstracts/Character";
 import { d20, d4, d6 } from "../Helpers/dices";
 import Dice, { roll } from "./Dice";
-import { Spell } from "@/contexts/ItemsContext";
+import { Spell } from "@/pages/spells";
 
 export type PlayerSkills = {
     strength: number;

@@ -2,8 +2,16 @@ import { useState } from "react";
 import Input from "@/components/Input";
 import Select from "@/components/Select";
 import Checkbox from "@/components/Checkbox";
-import { Spell } from "@/contexts/ItemsContext";
 import supabase from "@/services/supabase";
+import Dice from "@/battlerpg/Classes/Dice";
+
+export type Spell = {
+    id: string;
+    name: string;
+    energyCost: number;
+    dices: Dice[];
+    type: 'attack' | 'heal';
+};
 
 export default function Spells({ spells }: { spells: Spell[] }) {
     const [spell, setSpell] = useState<Spell>({} as Spell);

@@ -1,9 +1,9 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Battle from "@/battlerpg/Classes/Battle";
 import Player from "@/battlerpg/Classes/Player";
 import { d10, d20, d6, d8 } from "@/battlerpg/Helpers/dices";
 import { roll } from "@/battlerpg/Classes/Dice";
-import { ItemsContext, Spell } from "@/contexts/ItemsContext";
+import { Spell } from "@/pages/spells";
 
 type Log = {
     message: string;
@@ -96,8 +96,6 @@ function Logs({logs}: {logs: Log[]}) {
 }
 
 export default function Home() {
-    const { getSpell } = useContext(ItemsContext);
-
     const [logsInScreen, setLogsInScreen] = useState<Log[]>([]);
     const [players, setPlayers] = useState<Player[]>([]);
     const [quickBattle, setQuickBattle] = useState<boolean>(false);
@@ -161,14 +159,6 @@ export default function Home() {
         players[0].setWatchArmor(12, true);
         players[0].setWatchWeapon(d8, 'melee');
 
-        const firebal = getSpell('Explosion');
-        if (firebal) {
-            players[1].addSpell(firebal);
-        }
-        const heal = getSpell('Heal');
-        if (heal) {
-            players[1].addSpell(heal);
-        }
         players[1].setWatchWeapon(d6, 'range');
 
         players[2].setWatchArmor(18, false);
@@ -248,15 +238,7 @@ export default function Home() {
     const turn = async (attacker: Player, attacked: Player): Promise<void> => {
         await drinkPotion(attacker);
 
-        if (attacker.canSpell('Heal') && attacker.isDangerous()) {
-            await healSpell(attacker, attacker, getSpell('Heal') as Spell);
-        } else {
-            if (attacker.canSpell('Explosion')) {
-                await spell(attacker, attacked, getSpell('Explosion') as Spell);
-            } else {
-                await attack(attacker, attacked);
-            }
-        }
+        await attack(attacker, attacked);
     }
 
     const verifyDead = (player: Player): boolean => {
