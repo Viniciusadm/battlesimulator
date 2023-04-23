@@ -7,8 +7,8 @@ import { Spell } from "@/pages/spells";
 import PlayerStatus from "@/components/battle/PlayerStatus";
 import Toggle from "@/components/utils/Toggle";
 import Logs, { Log } from "@/components/battle/Logs";
-import supabase from "@/services/supabase";
 import { CreatePlayerData } from "@/pages/players";
+import api from "@/services/api";
 
 export default function Home({ players_selectables }: { players_selectables: CreatePlayerData[] }) {
     const [logsInScreen, setLogsInScreen] = useState<Log[]>([]);
@@ -351,11 +351,11 @@ export default function Home({ players_selectables }: { players_selectables: Cre
 }
 
 export async function getServerSideProps() {
-    let { data } = await supabase.from('players').select()
+    const res = await api.get('/players');
 
     return {
         props: {
-            players_selectables: data
+            players_selectables: res.data,
         },
     }
 }
