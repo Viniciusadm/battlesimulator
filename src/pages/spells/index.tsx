@@ -1,10 +1,11 @@
 import { useState } from "react";
-import Input from "@/components/Input";
-import Select from "@/components/Select";
-import Checkbox from "@/components/Checkbox";
 import supabase from "@/services/supabase";
-import Dice from "@/battlerpg/Classes/Dice";
 import { enqueueSnackbar } from "notistack";
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { FormProvider, useForm } from "react-hook-form";
+import { Form } from "@/components/Form";
+import Dice from "@/battlerpg/Classes/Dice";
 
 export type Spell = {
     id?: string;
@@ -14,33 +15,38 @@ export type Spell = {
     type: 'attack' | 'heal';
 };
 
-export type SpellResponse = {
-    id?: string;
-    name: string;
-    energy_cost: number;
-    dices: number[];
-    type: 'attack' | 'heal';
-}
+const createSpellSchema = z.object({
+    id: z.string().optional(),
+    name: z.string(),
+    energy_cost: z.preprocess(
+        (a) => parseInt(z.string().parse(a), 10),
+        z.number().positive().min(1).max(20)
+    ),
+    dices: z.preprocess(
+        (a) => z.string().parse(a).split(',').map((dice) => parseInt(dice, 10)),
+        z.array(z.number().positive().min(4).max(12))
+    ),
+    type: z.enum(['attack', 'heal']),
+})
 
-export default function Spells({ spells }: { spells: SpellResponse[] }) {
-    const [spell, setSpell] = useState<SpellResponse>({
-        name: '',
-        energy_cost: 0,
-        dices: [],
-        type: 'attack',
-    } as SpellResponse);
+type CreateSpellData = z.infer<typeof createSpellSchema>
 
-    const [spellsState, setSpellsState] = useState<SpellResponse[]>(spells);
+export default function Spells({ spells }: { spells: CreateSpellData[] }) {
+    const createSpellForm = useForm<CreateSpellData>({
+        resolver: zodResolver(createSpellSchema),
+    })
 
-    const handleAddSpell = async () => {
-        const payload = {
-            ...spell,
-            dices: spell.dices.map((dice) => parseInt(dice as unknown as string)),
-        }
+    const [spellsState, setSpellsState] = useState<CreateSpellData[]>(spells);
 
-        const { data, error } = await supabase
+    const {
+        handleSubmit,
+        formState: { isSubmitting },
+    } = createSpellForm;
+
+    const handleAddSpell = async (data: CreateSpellData) => {
+        const { data: SpellData, error } = await supabase
             .from('spells')
-            .insert(payload)
+            .insert(data)
             .select()
 
         if (error) {
@@ -48,66 +54,66 @@ export default function Spells({ spells }: { spells: SpellResponse[] }) {
             return;
         }
 
-        setSpell({
-            name: '',
-            energy_cost: 0,
-            dices: [],
-            type: 'attack',
-        } as SpellResponse)
-
         enqueueSnackbar('Spell added!', { variant: 'success' })
-        setSpellsState([...spellsState, data[0] as SpellResponse]);
+        setSpellsState([...spellsState, SpellData[0] as CreateSpellData]);
     }
 
     return (
-        <main className="flex flex-col w-full flex-1 px-20">
+        <main className="flex flex-col w-full flex-1 px-20 max-w-7xl mx-auto">
             <h1 className="text-4xl font-bold my-4">
                 Spells
             </h1>
-            <div className="flex flex-col">
-                <Input
-                    label="Name"
-                    name="name"
-                    value={spell.name}
-                    onChange={(value) => setSpell({ ...spell, name: value as string })}
-                />
-                <Input
-                    label="Energy Cost"
-                    name="energy"
-                    value={spell.energy_cost}
-                    onChange={(value) => setSpell({ ...spell, energy_cost: value as number })}
-                />
-                <Select
-                    label="Type"
-                    value={spell.type}
-                    name="type"
-                    onChange={(value) => setSpell({ ...spell, type: value as 'attack' | 'heal' })}
-                >
-                    <option value="attack">Attack</option>
-                    <option value="heal">Heal</option>
-                </Select>
 
-                <Checkbox
-                    label="Dices"
-                    name="dices"
-                    value={spell.dices as []}
-                    onChange={(value) => setSpell({ ...spell, dices: value as [] })}
-                    values={[
-                        { id: 'd4', value: 4, label: 'd4' },
-                        { id: 'd6', value: 6, label: 'd6' },
-                        { id: 'd8', value: 8, label: 'd8' },
-                        { id: 'd10', value: 10, label: 'd10' },
-                        { id: 'd12', value: 12, label: 'd12' },
-                    ]}
-                />
-
-                <button
-                    className="bg-black text-white rounded px-4 py-2"
-                    onClick={handleAddSpell}
+            <FormProvider {...createSpellForm}>
+                <form
+                    onSubmit={handleSubmit(handleAddSpell)}
+                    className="flex flex-col gap-4 w-full"
                 >
-                    Add Spell
-                </button>
-            </div>
+                    <Form.Field>
+                        <Form.Label htmlFor="name">
+                            Name
+                        </Form.Label>
+                        <Form.Input type="name" name="name" />
+                        <Form.ErrorMessage field="name" />
+                    </Form.Field>
+
+                    <Form.Field>
+                        <Form.Label htmlFor="energy_cost">
+                            Energy Cost
+                        </Form.Label>
+                        <Form.Input type="number" name="energy_cost" />
+                        <Form.ErrorMessage field="energy_cost" />
+                    </Form.Field>
+
+                    <Form.Field>
+                        <Form.Label htmlFor="type">
+                            Type
+                        </Form.Label>
+                        <Form.Select name="type">
+                            <option value="attack">Attack</option>
+                            <option value="heal">Heal</option>
+                        </Form.Select>
+                        <Form.ErrorMessage field="type" />
+                    </Form.Field>
+
+                    <Form.Field>
+                        <Form.Label htmlFor="dices">
+                            Dices
+                        </Form.Label>
+                        <Form.Input name="dices" />
+                        <Form.ErrorMessage field="dices" />
+                    </Form.Field>
+
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="bg-violet-500 text-white rounded px-3 h-10 font-semibold text-sm hover:bg-violet-600"
+                    >
+                        Salvar
+                    </button>
+                </form>
+            </FormProvider>
+
 
             <div className="flex flex-col mt-4">
                 {spellsState.map((spell) => (
