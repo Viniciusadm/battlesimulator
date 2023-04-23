@@ -12,14 +12,16 @@ export default function Checkbox({ label, name, onChange, values }: CheckboxProp
     const [selecteds, setSelecteds] = useState<string[]>([]);
 
     const change = (e: ChangeEvent<HTMLInputElement>) => {
-        if (e.target.checked) {
-            setSelecteds([...selecteds, e.target.value]);
-        } else {
-            setSelecteds(selecteds.filter((s) => s !== e.target.value));
-        }
+        setSelecteds((prevSelecteds) => {
+            if (e.target.checked) {
+                return [...prevSelecteds, e.target.value];
+            } else {
+                return prevSelecteds.filter((s) => s !== e.target.value);
+            }
+        });
+        onChange([...selecteds, e.target.value]);
+    };
 
-        onChange(selecteds);
-    }
 
     return (
         <>
