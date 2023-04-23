@@ -1,10 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import supabase from "@/services/supabase";
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    let { data } = await supabase.from('players').select();
+    const data = await prisma.players.findMany();
     res.status(200).json(data);
 }

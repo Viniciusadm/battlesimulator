@@ -355,7 +355,7 @@ export async function getServerSideProps() {
 
     return {
         props: {
-            players_selectables: res.data,
+            players_selectables: res.data || [],
         },
     }
 }
