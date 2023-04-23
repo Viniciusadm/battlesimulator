@@ -84,7 +84,7 @@ export default class Player extends Character {
     }
 
     private decreaseEnergy(spell: Spell): void {
-        this.energy -= spell.energyCost;
+        this.energy -= spell.energy_cost;
     }
 
     public increaseEnergy(amount: number): void {
@@ -92,7 +92,7 @@ export default class Player extends Character {
     }
 
     public useSpell(spell: Spell, resists: number = 0): roll|boolean {
-        if (spell && this.energy >= spell.energyCost) {
+        if (spell && this.energy >= spell.energy_cost) {
             this.decreaseEnergy(spell);
 
             if (resists > this.getMyResist()) {
@@ -111,7 +111,7 @@ export default class Player extends Character {
             return false;
         }
 
-        return this.energy >= spell.energyCost;
+        return this.energy >= spell.energy_cost;
     }
 
     public getSpell(spellName: string): Spell | undefined {
