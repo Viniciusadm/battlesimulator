@@ -9,7 +9,7 @@ import Dice from "@/battlerpg/Classes/Dice";
 import api from "@/services/api";
 
 export type Spell = {
-    id?: string;
+    id: number;
     name: string;
     energy_cost: number;
     dices: Dice[];
@@ -17,7 +17,10 @@ export type Spell = {
 };
 
 const createSpellSchema = z.object({
-    id: z.string().optional(),
+    id: z.preprocess(
+        (a) => parseInt(z.string().parse(a), 10),
+        z.number().positive().min(1)
+    ).optional(),
     name: z.string(),
     energy_cost: z.preprocess(
         (a) => parseInt(z.string().parse(a), 10),

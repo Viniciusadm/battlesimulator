@@ -2,15 +2,20 @@ import { useState } from "react";
 import Battle from "@/battlerpg/Classes/Battle";
 import Player from "@/battlerpg/Classes/Player";
 import { d20, d6, d8 } from "@/battlerpg/Helpers/dices";
-import { roll } from "@/battlerpg/Classes/Dice";
-import { Spell } from "@/pages/spells";
+import Dice, { roll } from "@/battlerpg/Classes/Dice";
+import { CreateSpellData, Spell } from "@/pages/spells";
 import PlayerStatus from "@/components/battle/PlayerStatus";
 import Toggle from "@/components/utils/Toggle";
 import Logs, { Log } from "@/components/battle/Logs";
 import { CreatePlayerData } from "@/pages/players";
 import api from "@/services/api";
 
-export default function Home({ players_selectables }: { players_selectables: CreatePlayerData[] }) {
+type Props = {
+    players_selectables: CreatePlayerData[];
+    spells: Spell[];
+}
+
+export default function Home({ players_selectables, spells }: Props) {
     const [logsInScreen, setLogsInScreen] = useState<Log[]>([]);
     const [quickBattle, setQuickBattle] = useState<boolean>(false);
     const [victories, setVictories] = useState<{player1: number, player2: number}>({player1: 0, player2: 0});
@@ -117,10 +122,22 @@ export default function Home({ players_selectables }: { players_selectables: Cre
         }
     }
 
+    const getSpell = (name: string): Spell | undefined => {
+        return spells.find((spell) => spell.name === name);
+    }
+
     const turn = async (attacker: Player, attacked: Player): Promise<void> => {
         await drinkPotion(attacker);
 
-        await attack(attacker, attacked);
+        if (attacker.canSpell('Heal') && attacker.isDangerous()) {
+            await healSpell(attacker, attacker, getSpell('Heal') as Spell);
+        } else {
+            if (attacker.canSpell('Explosion')) {
+                await spell(attacker, attacked, getSpell('Explosion') as Spell);
+            } else {
+                await attack(attacker, attacked);
+            }
+        }
     }
 
     const verifyDead = (player: Player): boolean => {
@@ -174,6 +191,15 @@ export default function Home({ players_selectables }: { players_selectables: Cre
             constitution: data1.constitution,
         });
 
+        if (data1.player_spells) {
+            data1.player_spells.map((spell) => {
+                const spellData = spells.find((item) => item.id === spell);
+                if (spellData) {
+                    player1.addSpell(spellData);
+                }
+            });
+        }
+
         const player2 = new Player({
             name: data2.name,
         }, {
@@ -184,6 +210,15 @@ export default function Home({ players_selectables }: { players_selectables: Cre
             charisma: data2.charisma,
             constitution: data2.constitution,
         });
+
+        if (data2.player_spells) {
+            data2.player_spells.map((spell) => {
+                const spellData = spells.find((item) => item.id === spell);
+                if (spellData) {
+                    player2.addSpell(spellData);
+                }
+            });
+        }
 
         setWarriors({player1, player2});
         setReady(true);
@@ -352,10 +387,22 @@ export default function Home({ players_selectables }: { players_selectables: Cre
 
 export async function getServerSideProps() {
     const res = await api.get('/players');
+    const response = await api.get('/spells');
+
+    const spells = response.data.map((spell: CreateSpellData) => {
+        return {
+            id: spell.id as number,
+            name: spell.name,
+            energy_cost: spell.energy_cost,
+            type: spell.type,
+            dices: Array.isArray(spell.dices) ? spell.dices.map((dice) => new Dice(dice)) : [],
+        }
+    });
 
     return {
         props: {
             players_selectables: res.data || [],
+            spells,
         },
     }
 }
