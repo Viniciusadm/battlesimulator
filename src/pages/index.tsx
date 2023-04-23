@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Battle from "@/battlerpg/Classes/Battle";
 import Player from "@/battlerpg/Classes/Player";
-import { getSpell, Spell } from "@/battlerpg/Database/spells";
-import {d20, d6} from "@/battlerpg/Helpers/dices";
+import { d10, d20, d6, d8 } from "@/battlerpg/Helpers/dices";
 import { roll } from "@/battlerpg/Classes/Dice";
-import { players as warriors } from "@/battlerpg/Database/players";
+import { ItemsContext, Spell } from "@/contexts/ItemsContext";
 
 type Log = {
     message: string;
@@ -97,6 +96,8 @@ function Logs({logs}: {logs: Log[]}) {
 }
 
 export default function Home() {
+    const { getSpell } = useContext(ItemsContext);
+
     const [logsInScreen, setLogsInScreen] = useState<Log[]>([]);
     const [players, setPlayers] = useState<Player[]>([]);
     const [quickBattle, setQuickBattle] = useState<boolean>(false);
@@ -104,6 +105,7 @@ export default function Home() {
     const [multiplesBattles, setMultiplesBattles] = useState<boolean>(false);
     const [battles, setBattles] = useState<number>(0);
     const [victtoriesWithInitiative, setVicttoriesWithInitiative] = useState<number>(0);
+
 
     const addLog = (message: string, type: Log['type'] = 'info') => {
         if (multiplesBattles) {
@@ -119,8 +121,60 @@ export default function Home() {
     const sleep = (ms: number) => new Promise(r => setTimeout(r, quickBattle ? ms / 0 : ms));
 
     useEffect(() => {
-        setPlayers([warriors.Darkness, warriors.Kazuma]);
+        const Kazuma = new Player({
+            name: "Kazuma",
+        }, {
+            strength: 15,
+            dexterity: 12,
+            charisma: 13,
+            constitution: 14,
+            intelligence: 8,
+            wisdom: 10,
+        });
+
+        const Megumin = new Player({
+            name: "Megumin",
+        }, {
+            strength: 13,
+            dexterity: 14,
+            charisma: 10,
+            constitution: 12,
+            intelligence: 15,
+            wisdom: 8,
+        });
+
+        const Darkness = new Player({
+            name: "Darkness",
+        }, {
+            strength: 15,
+            dexterity: 12,
+            charisma: 13,
+            constitution: 14,
+            intelligence: 8,
+            wisdom: 10,
+        });
+
+        setPlayers([Kazuma, Megumin, Darkness]);
     }, []);
+
+    const setItems = () => {
+        players[0].setWatchArmor(12, true);
+        players[0].setWatchWeapon(d8, 'melee');
+
+        const firebal = getSpell('Explosion');
+        if (firebal) {
+            console.log(firebal);
+            players[1].addSpell(firebal);
+        }
+        const heal = getSpell('Heal');
+        if (heal) {
+            players[1].addSpell(heal);
+        }
+        players[1].setWatchWeapon(d6, 'range');
+
+        players[2].setWatchArmor(18, false);
+        players[2].setWatchWeapon(d10, 'melee');
+    }
 
     const initialLogs = async (first: Player, second: Player) => {
         addLog(`${first.getName()} has ${first.getResumedSkills()}`);
@@ -239,6 +293,8 @@ export default function Home() {
     }
 
     const startBattle = async () => {
+        setItems();
+
         setLogsInScreen([]);
         const battle = new Battle(players[0], players[1]);
         const battles = multiplesBattles ? 100 : 1;

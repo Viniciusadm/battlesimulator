@@ -8,7 +8,7 @@ type CheckboxProps = {
     values: { id: string, value: string | number, label: string }[];
 }
 
-export default function Checkbox({ label, name, value, onChange, values }: CheckboxProps) {
+export default function Checkbox({ label, name, onChange, values }: CheckboxProps) {
     const [selecteds, setSelecteds] = useState<string[]>([]);
 
     const change = (e: ChangeEvent<HTMLInputElement>) => {
@@ -17,8 +17,6 @@ export default function Checkbox({ label, name, value, onChange, values }: Check
         } else {
             setSelecteds(selecteds.filter((s) => s !== e.target.value));
         }
-
-        console.log(selecteds);
 
         onChange(selecteds);
     }

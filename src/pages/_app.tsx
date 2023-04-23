@@ -1,6 +1,11 @@
 import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
+import { ItemsContextProvider } from '@/contexts/ItemsContext';
 
 export default function App({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+    return (
+        <ItemsContextProvider>
+            <Component {...pageProps} />
+        </ItemsContextProvider>
+    )
 }
