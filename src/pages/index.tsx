@@ -163,7 +163,6 @@ export default function Home() {
 
         const firebal = getSpell('Explosion');
         if (firebal) {
-            console.log(firebal);
             players[1].addSpell(firebal);
         }
         const heal = getSpell('Heal');
