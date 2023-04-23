@@ -1,10 +1,10 @@
 import { database } from "@/services/firebase";
 import { onValue, push, ref } from "firebase/database";
-import { Spell } from "@/battlerpg/Database/spells";
 import { useEffect, useState } from "react";
 import Input from "@/components/Input";
 import Select from "@/components/Select";
 import Checkbox from "@/components/Checkbox";
+import { Spell } from "@/contexts/ItemsContext";
 
 export default function Spells() {
     const [spells, setSpells] = useState<Spell[]>([]);
