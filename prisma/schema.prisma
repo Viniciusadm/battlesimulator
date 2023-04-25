@@ -47,6 +47,8 @@ model items {
   id           Int            @id @default(autoincrement())
   name         String
   type         String
+  dices        String
+  target       String
   created_at   DateTime       @default(now())
   player_items player_items[]
 }
