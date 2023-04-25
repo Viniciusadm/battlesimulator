@@ -13,7 +13,12 @@ export default async function handler(
                 select: {
                     spell_id: true
                 },
-            }
+            },
+            player_items: {
+                select: {
+                    item_id: true
+                },
+            },
         }
     });
 

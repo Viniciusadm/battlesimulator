@@ -21,6 +21,7 @@ model players {
   constitution  Int
   created_at    DateTime        @default(now())
   player_spells player_spells[]
+  player_items  player_items[]
 }
 
 model spells {
@@ -40,4 +41,22 @@ model player_spells {
   created_at DateTime @default(now())
   player     players  @relation(fields: [player_id], references: [id])
   spell      spells   @relation(fields: [spell_id], references: [id])
+}
+
+model items {
+  id           Int            @id @default(autoincrement())
+  name         String
+  type         String
+  created_at   DateTime       @default(now())
+  player_items player_items[]
+}
+
+model player_items {
+  id         Int      @id @default(autoincrement())
+  player_id  Int
+  item_id    Int
+  quantity   Int
+  created_at DateTime @default(now())
+  player     players  @relation(fields: [player_id], references: [id])
+  item       items    @relation(fields: [item_id], references: [id])
 }
