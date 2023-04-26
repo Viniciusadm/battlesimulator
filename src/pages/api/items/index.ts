@@ -8,5 +8,10 @@ export default async function handler(
     res: NextApiResponse
 ) {
     const data = await prisma.items.findMany();
-    res.status(200).json(data);
+    res.status(200).json(data.map((spell) => {
+        return {
+            ...spell,
+            dices: JSON.parse(spell.dices),
+        }
+    }));
 }
