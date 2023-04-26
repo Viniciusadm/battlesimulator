@@ -7,9 +7,20 @@ import { z } from "zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/Form";
+import { CreateItemData } from '../items';
 
-const creatPlayerSpellsSchema = z.object({
+const createPlayerDetailsSchema = z.object({
     spells: z.preprocess(
+        (a) => {
+            if (Array.isArray(a)) {
+                return a.map((id) => parseInt(id, 10));
+            } else {
+                return [];
+            }
+        },
+        z.array(z.number())
+    ),
+    items: z.preprocess(
         (a) => {
             if (Array.isArray(a)) {
                 return a.map((id) => parseInt(id, 10));
@@ -21,25 +32,31 @@ const creatPlayerSpellsSchema = z.object({
     ),
 });
 
-type CreatePlayerSpellsData = z.infer<typeof creatPlayerSpellsSchema>;
+type CreatePlayerDetailsData = z.infer<typeof createPlayerDetailsSchema>;
 
-export default function Player({ player, spells }: { player: CreatePlayerData, spells: CreateSpellData[] }) {
-    const createPlayerSpellsForm = useForm<CreatePlayerSpellsData>({
-        resolver: zodResolver(creatPlayerSpellsSchema),
+type Props = {
+    player: CreatePlayerData,
+    spells: CreateSpellData[],
+    items: CreateItemData[]
+};
+
+export default function Player({ player, spells, items }: Props) {
+    const createPlayerDetailsForm = useForm<CreatePlayerDetailsData>({
+        resolver: zodResolver(createPlayerDetailsSchema),
     });
 
     const {
         handleSubmit,
         formState: { isSubmitting },
-    } = createPlayerSpellsForm;
+    } = createPlayerDetailsForm;
 
-    const handleAddSpells = async (data: CreatePlayerSpellsData) => {
+    const handleAddSpells = async (data: CreatePlayerDetailsData) => {
         await supabase
             .from('player_spells')
             .delete()
             .match({ player_id: player.id });
 
-        const { data: SpellsData, error } = await supabase
+        const { error } = await supabase
             .from('player_spells')
             .insert(data.spells.map(spell => {
                 return {
@@ -54,7 +71,26 @@ export default function Player({ player, spells }: { player: CreatePlayerData, s
             return;
         }
 
-        enqueueSnackbar('Spells added!', { variant: 'success' })
+        await supabase
+            .from('player_items')
+            .delete()
+
+        const { error: errorItems } = await supabase
+            .from('player_items')
+            .insert(data.items.map(item => {
+                return {
+                    player_id: player.id,
+                    item_id: item,
+                }
+            }))
+            .select()
+
+        if (errorItems) {
+            enqueueSnackbar(errorItems.message, { variant: 'error' })
+            return;
+        }
+
+        enqueueSnackbar('Details added!', { variant: 'success' })
     }
 
     return (
@@ -73,7 +109,7 @@ export default function Player({ player, spells }: { player: CreatePlayerData, s
                 </ul>
             </div>
 
-            <FormProvider {...createPlayerSpellsForm}>
+            <FormProvider {...createPlayerDetailsForm}>
                 <form
                     onSubmit={handleSubmit(handleAddSpells)}
                 >
@@ -90,6 +126,23 @@ export default function Player({ player, spells }: { player: CreatePlayerData, s
                                     </Form.Label>
                                 </div>
                                 <Form.ErrorMessage field="spells" />
+                            </Form.Field>
+                        ))
+                    }
+
+                    <h2 className="text-2xl font-bold mb-3">
+                        Items
+                    </h2>
+                    {
+                        items.map(item => (
+                            <Form.Field key={item.id} className="mb-2">
+                                <div className="flex items-center">
+                                    <Form.Input id={`item_${item.id}`} type="checkbox" name="items[]" value={item.id} className="w-5 h-5 mr-2" />
+                                    <Form.Label htmlFor={`item_${item.id}`}>
+                                        {item.name}
+                                    </Form.Label>
+                                </div>
+                                <Form.ErrorMessage field="items" />
                             </Form.Field>
                         ))
                     }
@@ -118,16 +171,13 @@ export async function getServerSideProps(context: NextPageContext) {
     }
 
     const { data: spells } = await supabase.from('spells').select();
-    const { data: playerSpells } = await supabase.from('player_spells').select().eq('player_id', id);
-
-    if (playerSpells) {
-        player.spells = playerSpells.map(spell => spell.spell_id);
-    }
+    const { data: items } = await supabase.from('items').select();
 
     return {
         props: {
             player,
             spells,
+            items,
         }
     }
 }
