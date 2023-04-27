@@ -9,13 +9,15 @@ import Toggle from "@/components/utils/Toggle";
 import Logs, { Log } from "@/components/battle/Logs";
 import { CreatePlayerData } from "@/pages/players";
 import api from "@/services/api";
+import { CreateItemData, Item } from "./items";
 
 type Props = {
     players_selectables: CreatePlayerData[];
     spells_selectables: CreateSpellData[];
+    items_selectables: CreateItemData[];
 }
 
-export default function Home({ players_selectables, spells_selectables }: Props) {
+export default function Home({ players_selectables, spells_selectables, items_selectables }: Props) {
     const [logsInScreen, setLogsInScreen] = useState<Log[]>([]);
     const [quickBattle, setQuickBattle] = useState<boolean>(false);
     const [victories, setVictories] = useState<{player1: number, player2: number}>({player1: 0, player2: 0});
@@ -26,13 +28,19 @@ export default function Home({ players_selectables, spells_selectables }: Props)
     const [players, setPlayers] = useState<{player1?: number, player2?: number}>({player1: undefined, player2: undefined});
     const [warriors, setWarriors] = useState<{player1?: Player, player2?: Player}>({player1: undefined, player2: undefined});
 
-    const spells = spells_selectables.map((spell: CreateSpellData) => {
+    const spells: Spell[] = spells_selectables.map((spell: CreateSpellData) => {
         return {
+            ...spell,
             id: spell.id as number,
-            name: spell.name,
-            energy_cost: spell.energy_cost,
-            type: spell.type,
             dices: Array.isArray(spell.dices) ? spell.dices.map((dice) => new Dice(dice)) : [],
+        }
+    });
+
+    const items: Item[] = items_selectables.map((item: CreateItemData) => {
+        return {
+            ...item,
+            id: item.id as number,
+            dices: Array.isArray(item.dices) ? item.dices.map((dice) => new Dice(dice)) : [],
         }
     });
 
@@ -398,11 +406,13 @@ export default function Home({ players_selectables, spells_selectables }: Props)
 export async function getServerSideProps() {
     const res = await api.get('/players');
     const response = await api.get('/spells');
+    const items = await api.get('/items');
 
     return {
         props: {
             players_selectables: res.data || [],
             spells_selectables: response.data || [],
+            items_selectables: items.data || [],
         },
     }
 }
