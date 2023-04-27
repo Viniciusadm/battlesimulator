@@ -35,6 +35,7 @@ const createPlayerSchema = z.object({
         z.number().positive().min(8).max(15)
     ),
     player_spells: z.array(z.number()).optional(),
+    player_items: z.array(z.number()).optional(),
 })
 
 export type CreatePlayerData = z.infer<typeof createPlayerSchema>

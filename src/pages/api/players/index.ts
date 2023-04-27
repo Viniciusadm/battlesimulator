@@ -24,7 +24,8 @@ export default async function handler(
 
     const playersWithSpellIds = data.map(player => {
         const spellIds = player.player_spells.map(playerSpell => playerSpell.spell_id);
-        return { ...player, player_spells: spellIds };
+        const itemIds = player.player_items.map(playerItem => playerItem.item_id);
+        return { ...player, player_spells: spellIds, player_items: itemIds };
     });
 
     res.status(200).json(playersWithSpellIds);

@@ -12,10 +12,10 @@ import api from "@/services/api";
 
 type Props = {
     players_selectables: CreatePlayerData[];
-    spells: Spell[];
+    spells_selectables: CreateSpellData[];
 }
 
-export default function Home({ players_selectables, spells }: Props) {
+export default function Home({ players_selectables, spells_selectables }: Props) {
     const [logsInScreen, setLogsInScreen] = useState<Log[]>([]);
     const [quickBattle, setQuickBattle] = useState<boolean>(false);
     const [victories, setVictories] = useState<{player1: number, player2: number}>({player1: 0, player2: 0});
@@ -25,6 +25,16 @@ export default function Home({ players_selectables, spells }: Props) {
     const [ready, setReady] = useState<boolean>(false);
     const [players, setPlayers] = useState<{player1?: number, player2?: number}>({player1: undefined, player2: undefined});
     const [warriors, setWarriors] = useState<{player1?: Player, player2?: Player}>({player1: undefined, player2: undefined});
+
+    const spells = spells_selectables.map((spell: CreateSpellData) => {
+        return {
+            id: spell.id as number,
+            name: spell.name,
+            energy_cost: spell.energy_cost,
+            type: spell.type,
+            dices: Array.isArray(spell.dices) ? spell.dices.map((dice) => new Dice(dice)) : [],
+        }
+    });
 
     const changePlayer = (player: 'player1' | 'player2', id: number) => {
         setPlayers((prev) => ({
@@ -389,20 +399,10 @@ export async function getServerSideProps() {
     const res = await api.get('/players');
     const response = await api.get('/spells');
 
-    const spells = response.data.map((spell: CreateSpellData) => {
-        return {
-            id: spell.id as number,
-            name: spell.name,
-            energy_cost: spell.energy_cost,
-            type: spell.type,
-            dices: Array.isArray(spell.dices) ? spell.dices.map((dice) => new Dice(dice)) : [],
-        }
-    });
-
     return {
         props: {
             players_selectables: res.data || [],
-            spells,
+            spells_selectables: response.data || [],
         },
     }
 }
