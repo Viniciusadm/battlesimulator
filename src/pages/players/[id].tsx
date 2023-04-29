@@ -7,7 +7,6 @@ import { z } from "zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/Form";
-import { CreateItemData } from '../items';
 
 const createPlayerDetailsSchema = z.object({
     spells: z.preprocess(
@@ -37,10 +36,9 @@ type CreatePlayerDetailsData = z.infer<typeof createPlayerDetailsSchema>;
 type Props = {
     player: CreatePlayerData,
     spells: CreateSpellData[],
-    items: CreateItemData[]
 };
 
-export default function Player({ player, spells, items }: Props) {
+export default function Player({ player, spells }: Props) {
     const createPlayerDetailsForm = useForm<CreatePlayerDetailsData>({
         resolver: zodResolver(createPlayerDetailsSchema),
     });
@@ -130,23 +128,6 @@ export default function Player({ player, spells, items }: Props) {
                         ))
                     }
 
-                    <h2 className="text-2xl font-bold mb-3">
-                        Items
-                    </h2>
-                    {
-                        items.map(item => (
-                            <Form.Field key={item.id} className="mb-2">
-                                <div className="flex items-center">
-                                    <Form.Input id={`item_${item.id}`} type="checkbox" name="items[]" value={item.id} className="w-5 h-5 mr-2" />
-                                    <Form.Label htmlFor={`item_${item.id}`}>
-                                        {item.name}
-                                    </Form.Label>
-                                </div>
-                                <Form.ErrorMessage field="items" />
-                            </Form.Field>
-                        ))
-                    }
-
                     <button
                         type="submit"
                         disabled={isSubmitting}
@@ -171,13 +152,11 @@ export async function getServerSideProps(context: NextPageContext) {
     }
 
     const { data: spells } = await supabase.from('spells').select();
-    const { data: items } = await supabase.from('items').select();
 
     return {
         props: {
             player,
             spells,
-            items,
         }
     }
 }
