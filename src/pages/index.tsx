@@ -2,22 +2,22 @@ import { useState } from "react";
 import Battle from "@/battlerpg/Classes/Battle";
 import Player from "@/battlerpg/Classes/Player";
 import { d20, d6, d8 } from "@/battlerpg/Helpers/dices";
-import Dice, { roll } from "@/battlerpg/Classes/Dice";
+import { roll } from "@/battlerpg/Classes/Dice";
 import { CreateSpellData, Spell } from "@/pages/spells";
 import PlayerStatus from "@/components/battle/PlayerStatus";
 import Toggle from "@/components/utils/Toggle";
 import Logs, { Log } from "@/components/battle/Logs";
 import { CreatePlayerData } from "@/pages/players";
 import api from "@/services/api";
-import { CreateItemData, Item } from "./items";
+import { spells_type } from "@/pages/spells";
+import { parseDiceString } from "@/utils";
 
 type Props = {
     players_selectables: CreatePlayerData[];
     spells_selectables: CreateSpellData[];
-    items_selectables: CreateItemData[];
 }
 
-export default function Home({ players_selectables, spells_selectables, items_selectables }: Props) {
+export default function Home({ players_selectables, spells_selectables }: Props) {
     const [logsInScreen, setLogsInScreen] = useState<Log[]>([]);
     const [quickBattle, setQuickBattle] = useState<boolean>(false);
     const [victories, setVictories] = useState<{player1: number, player2: number}>({player1: 0, player2: 0});
@@ -32,17 +32,12 @@ export default function Home({ players_selectables, spells_selectables, items_se
         return {
             ...spell,
             id: spell.id as number,
-            dices: Array.isArray(spell.dices) ? spell.dices.map((dice) => new Dice(dice)) : [],
+            type: spell.type as spells_type,
+            dices: parseDiceString(spell.dices),
         }
     });
 
-    const items: Item[] = items_selectables.map((item: CreateItemData) => {
-        return {
-            ...item,
-            id: item.id as number,
-            dices: Array.isArray(item.dices) ? item.dices.map((dice) => new Dice(dice)) : [],
-        }
-    });
+    console.log(spells);
 
     const changePlayer = (player: 'player1' | 'player2', id: number) => {
         setPlayers((prev) => ({
@@ -406,13 +401,11 @@ export default function Home({ players_selectables, spells_selectables, items_se
 export async function getServerSideProps() {
     const res = await api.get('/players');
     const response = await api.get('/spells');
-    const items = await api.get('/items');
 
     return {
         props: {
             players_selectables: res.data || [],
             spells_selectables: response.data || [],
-            items_selectables: items.data || [],
         },
     }
 }
