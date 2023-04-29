@@ -1,5 +1,4 @@
 import { useState } from "react";
-import supabase from "@/services/supabase";
 import { enqueueSnackbar } from "notistack";
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,12 +7,17 @@ import { Form } from "@/components/Form";
 import Dice from "@/battlerpg/Classes/Dice";
 import api from "@/services/api";
 
+enum spells_type {
+    heal = 'heal',
+    damage = 'damage',
+}
+
 export type Spell = {
     id: number;
     name: string;
     energy_cost: number;
     dices: Dice[];
-    type: 'attack' | 'heal';
+    type: spells_type;
 };
 
 const createSpellSchema = z.object({
@@ -26,11 +30,8 @@ const createSpellSchema = z.object({
         (a) => parseInt(z.string().parse(a), 10),
         z.number().positive().min(1).max(20)
     ),
-    dices: z.preprocess(
-        (a) => z.string().parse(a).split(',').map((dice) => parseInt(dice, 10)),
-        z.array(z.number().positive().min(4).max(12))
-    ),
-    type: z.enum(['attack', 'heal']),
+    dices: z.string().regex(/^\d+d(4|6|8|10|12|20)(\+\d+)?$/),
+    type: z.enum(['heal', 'damage']),
 })
 
 export type CreateSpellData = z.infer<typeof createSpellSchema>
@@ -48,18 +49,15 @@ export default function Spells({ spells }: { spells: CreateSpellData[] }) {
     } = createSpellForm;
 
     const handleAddSpell = async (data: CreateSpellData) => {
-        const { data: SpellData, error } = await supabase
-            .from('spells')
-            .insert(data)
-            .select()
+        const SpellData = await api.post('/spells/create', data);
 
-        if (error) {
-            enqueueSnackbar(error.message, { variant: 'error' })
-            return;
+        if (SpellData.status !== 201) {
+            return enqueueSnackbar('Error on create spell', { variant: 'error' })
         }
 
+        setSpellsState([...spellsState, SpellData.data]);
+
         enqueueSnackbar('Spell added!', { variant: 'success' })
-        setSpellsState([...spellsState, SpellData[0] as CreateSpellData]);
     }
 
     return (
@@ -94,7 +92,7 @@ export default function Spells({ spells }: { spells: CreateSpellData[] }) {
                             Type
                         </Form.Label>
                         <Form.Select name="type">
-                            <option value="attack">Attack</option>
+                            <option value="damage">Damage</option>
                             <option value="heal">Heal</option>
                         </Form.Select>
                         <Form.ErrorMessage field="type" />
@@ -125,7 +123,7 @@ export default function Spells({ spells }: { spells: CreateSpellData[] }) {
                         <h2 className="text-2xl font-bold">{spell.name}</h2>
                         <p>Energy Cost: {spell.energy_cost}</p>
                         <p>Type: {spell.type}</p>
-                        <p>Dices: {spell.dices?.join(', ')}</p>
+                        <p>Dices: {spell.dices}</p>
                     </div>
                 ))}
             </div>
