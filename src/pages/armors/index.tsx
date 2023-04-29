@@ -20,11 +20,6 @@ const createArmorSchema = z.object({
     additional: z.boolean(),
 })
 
-type Armor = {
-    id: number;
-    name: string;
-}
-
 export type CreateArmorData = z.infer<typeof createArmorSchema>
 
 export default function Armors({ armors }: { armors: CreateArmorData[] }) {
