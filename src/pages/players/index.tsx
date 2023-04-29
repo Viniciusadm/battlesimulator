@@ -1,5 +1,4 @@
 import { useState } from "react";
-import supabase from "@/services/supabase";
 import { enqueueSnackbar } from "notistack";
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -53,18 +52,15 @@ export default function Players({ players }: { players: CreatePlayerData[] }) {
     } = createPlayerForm;
 
     const handleAddPlayer = async (data: CreatePlayerData) => {
-        const { data: PlayerData, error } = await supabase
-            .from('players')
-            .insert(data)
-            .select()
+        const PlayerData = await api.post('/players/create', data);
 
-        if (error) {
-            enqueueSnackbar(error.message, { variant: 'error' })
-            return;
+        if (PlayerData.status !== 201) {
+            return enqueueSnackbar('Error on create player', { variant: 'error' })
         }
 
+        setPlayersState([...playersState, PlayerData.data]);
+
         enqueueSnackbar('Player added!', { variant: 'success' })
-        setPlayersState([...playersState, PlayerData[0] as CreatePlayerData]);
     }
 
     return (
