@@ -1,5 +1,4 @@
 import { NextPageContext } from 'next';
-import supabase from "@/services/supabase";
 import { enqueueSnackbar } from "notistack";
 import { CreatePlayerData } from "@/pages/players/index";
 import { CreateSpellData } from "@/pages/spells";
@@ -7,19 +6,10 @@ import { z } from "zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/Form";
+import api from "@/services/api";
 
-const createPlayerDetailsSchema = z.object({
+const createPlayerSpellsSchema = z.object({
     spells: z.preprocess(
-        (a) => {
-            if (Array.isArray(a)) {
-                return a.map((id) => parseInt(id, 10));
-            } else {
-                return [];
-            }
-        },
-        z.array(z.number())
-    ),
-    items: z.preprocess(
         (a) => {
             if (Array.isArray(a)) {
                 return a.map((id) => parseInt(id, 10));
@@ -31,7 +21,7 @@ const createPlayerDetailsSchema = z.object({
     ),
 });
 
-type CreatePlayerDetailsData = z.infer<typeof createPlayerDetailsSchema>;
+type CreatePlayerSpellsData = z.infer<typeof createPlayerSpellsSchema>;
 
 type Props = {
     player: CreatePlayerData,
@@ -39,56 +29,23 @@ type Props = {
 };
 
 export default function Player({ player, spells }: Props) {
-    const createPlayerDetailsForm = useForm<CreatePlayerDetailsData>({
-        resolver: zodResolver(createPlayerDetailsSchema),
+    const createPlayerSpellsForm = useForm<CreatePlayerSpellsData>({
+        resolver: zodResolver(createPlayerSpellsSchema),
     });
 
     const {
         handleSubmit,
         formState: { isSubmitting },
-    } = createPlayerDetailsForm;
+    } = createPlayerSpellsForm;
 
-    const handleAddSpells = async (data: CreatePlayerDetailsData) => {
-        await supabase
-            .from('player_spells')
-            .delete()
-            .match({ player_id: player.id });
+    const handleAddSpells = async (data: CreatePlayerSpellsData) => {
+        const SpellsData = await api.post(`/players/spells/${player.id}`, data);
 
-        const { error } = await supabase
-            .from('player_spells')
-            .insert(data.spells.map(spell => {
-                return {
-                    player_id: player.id,
-                    spell_id: spell,
-                }
-            }))
-            .select()
-
-        if (error) {
-            enqueueSnackbar(error.message, { variant: 'error' })
-            return;
+        if (SpellsData.status !== 201) {
+            return enqueueSnackbar('Error on add spells', { variant: 'error' })
         }
 
-        await supabase
-            .from('player_items')
-            .delete()
-
-        const { error: errorItems } = await supabase
-            .from('player_items')
-            .insert(data.items.map(item => {
-                return {
-                    player_id: player.id,
-                    item_id: item,
-                }
-            }))
-            .select()
-
-        if (errorItems) {
-            enqueueSnackbar(errorItems.message, { variant: 'error' })
-            return;
-        }
-
-        enqueueSnackbar('Details added!', { variant: 'success' })
+        enqueueSnackbar('Spells added!', { variant: 'success' })
     }
 
     return (
@@ -107,7 +64,7 @@ export default function Player({ player, spells }: Props) {
                 </ul>
             </div>
 
-            <FormProvider {...createPlayerDetailsForm}>
+            <FormProvider {...createPlayerSpellsForm}>
                 <form
                     onSubmit={handleSubmit(handleAddSpells)}
                 >
@@ -143,7 +100,7 @@ export default function Player({ player, spells }: Props) {
 
 export async function getServerSideProps(context: NextPageContext) {
     const { id } = context.query;
-    const { data: player } = await supabase.from('players').select().eq('id', id).single();
+    const player = await api.get(`/players/${id}`);
 
     if (!player) {
         return {
@@ -151,12 +108,12 @@ export async function getServerSideProps(context: NextPageContext) {
         }
     }
 
-    const { data: spells } = await supabase.from('spells').select();
+    const spells = await api.get('/spells');
 
     return {
         props: {
-            player,
-            spells,
+            player: player.data,
+            spells: spells.data,
         }
     }
 }
