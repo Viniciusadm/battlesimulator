@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from "react-hook-form";
 import { Form } from "@/components/Form";
 import api from "@/services/api";
-import { TypeDice } from "@/utils";
+import Dice from "@/battlerpg/Classes/Dice";
 
 export enum spells_type {
     heal = 'heal',
@@ -16,7 +16,7 @@ export type Spell = {
     id: number;
     name: string;
     energy_cost: number;
-    dices: TypeDice[];
+    dices: Dice[];
     type: spells_type;
 };
 

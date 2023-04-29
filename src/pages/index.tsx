@@ -2,7 +2,7 @@ import { useState } from "react";
 import Battle from "@/battlerpg/Classes/Battle";
 import Player from "@/battlerpg/Classes/Player";
 import { d20, d6, d8 } from "@/battlerpg/Helpers/dices";
-import { roll } from "@/battlerpg/Classes/Dice";
+import Dice, { roll } from "@/battlerpg/Classes/Dice";
 import { CreateSpellData, Spell } from "@/pages/spells";
 import PlayerStatus from "@/components/battle/PlayerStatus";
 import Toggle from "@/components/utils/Toggle";
@@ -10,7 +10,6 @@ import Logs, { Log } from "@/components/battle/Logs";
 import { CreatePlayerData } from "@/pages/players";
 import api from "@/services/api";
 import { spells_type } from "@/pages/spells";
-import { parseDiceString } from "@/utils";
 
 type Props = {
     players_selectables: CreatePlayerData[];
@@ -33,7 +32,7 @@ export default function Home({ players_selectables, spells_selectables }: Props)
             ...spell,
             id: spell.id as number,
             type: spell.type as spells_type,
-            dices: parseDiceString(spell.dices),
+            dices: Dice.parseDiceString(spell.dices),
         }
     });
 
