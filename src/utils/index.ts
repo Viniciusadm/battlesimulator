@@ -1,10 +1,10 @@
-type TypeDice = {
+export type TypeDice = {
     count: number;
     sides: number;
     modifier: number;
 }
 
-export function parseDiceString(diceString: string) {
+export function parseDiceString(diceString: string): TypeDice[] {
     const diceList = diceString.split(",");
 
     const dice: TypeDice[] = [];
