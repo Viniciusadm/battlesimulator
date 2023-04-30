@@ -35,6 +35,7 @@ CREATE TABLE `player_items` (
     `player_id` INTEGER UNSIGNED NOT NULL,
     `item_id` INTEGER UNSIGNED NOT NULL,
     `quantity` INTEGER NOT NULL DEFAULT 1,
+    `equipped` BOOLEAN NOT NULL DEFAULT false,
     `created_at` TIMESTAMP(0) NULL,
     `updated_at` TIMESTAMP(0) NULL,
 

@@ -58,6 +58,7 @@ model player_items {
   player_id  Int       @db.UnsignedInt
   item_id    Int       @db.UnsignedInt
   quantity   Int       @default(1)
+  equipped   Boolean   @default(false)
   created_at DateTime? @db.Timestamp(0)
   updated_at DateTime? @db.Timestamp(0)
   items      items     @relation(fields: [item_id], references: [id], onDelete: Cascade, map: "player_items_item_id_foreign")
