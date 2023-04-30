@@ -75,7 +75,14 @@ export default function Player({ player, spells }: Props) {
                         spells.map(spell => (
                             <Form.Field key={spell.id} className="mb-2">
                                 <div className="flex items-center">
-                                    <Form.Input id={`spell_${spell.id}`} type="checkbox" name="spells[]" value={spell.id} className="w-5 h-5 mr-2" />
+                                    <Form.Input
+                                        id={`spell_${spell.id}`}
+                                        type="checkbox"
+                                        name="spells[]"
+                                        value={spell.id}
+                                        className="w-5 h-5 mr-2"
+                                        defaultChecked={player.player_spells?.includes(spell.id as number)}
+                                    />
                                     <Form.Label htmlFor={`spell_${spell.id}`}>
                                         {spell.name}
                                     </Form.Label>

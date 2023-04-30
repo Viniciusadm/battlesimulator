@@ -26,5 +26,10 @@ export default async function handler(
         }
     });
 
-    res.status(200).json(data);
+    const response = {
+        ...data,
+        player_spells: data?.player_spells.map((spell) => spell.spell_id),
+    }
+
+    res.status(200).json(response);
 }

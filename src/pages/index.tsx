@@ -36,8 +36,6 @@ export default function Home({ players_selectables, spells_selectables }: Props)
         }
     });
 
-    console.log(spells);
-
     const changePlayer = (player: 'player1' | 'player2', id: number) => {
         setPlayers((prev) => ({
             ...prev,
