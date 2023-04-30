@@ -1,10 +1,10 @@
 import { NextPageContext } from 'next';
-import { enqueueSnackbar } from "notistack";
 import { CreatePlayerData } from "@/pages/players/index";
 import { CreateSpellData } from "@/pages/spells";
 import api from "@/services/api";
 import { CreateArmorData } from "@/pages/armors";
 import PlayerSpells from "@/components/PlayerSpells";
+import PlayerItems from "@/components/PlayerItems";
 
 type Props = {
     player: CreatePlayerData,
@@ -13,8 +13,6 @@ type Props = {
 };
 
 export default function Player({ player, spells, armors }: Props) {
-
-
     return (
         <main className="flex flex-col flex-1 px-20 max-w-7xl mx-auto w-full">
             <div className="mb-4">
@@ -32,6 +30,8 @@ export default function Player({ player, spells, armors }: Props) {
             </div>
 
             <PlayerSpells player={player} spells={spells} />
+
+            <PlayerItems player={player} armors={armors} />
         </main>
     );
 }
